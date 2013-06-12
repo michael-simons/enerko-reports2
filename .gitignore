@@ -1,0 +1,7 @@
+target/
+.DS_Store
+.project
+.factorypath
+.classpath
+pom.xml.releaseBackup
+release.properties
