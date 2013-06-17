@@ -24,8 +24,27 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-BEGIN EXECUTE immediate 'DROP TYPE table_of_hre_cell_definitions FORCE'; EXCEPTION WHEN others THEN IF SQLCODE != -4043 THEN RAISE; END IF; END;
-/
+package de.enerko.hre;
 
-CREATE TYPE table_of_hre_cell_definitions AS TABLE OF t_hre_cell_definition
-/
+/**
+ * Repräsentiert eine Zelle eines Worksheets und korrespondiert
+ * mit dem PL/SQL Type t_hre_cell_definition
+ * @author Michael J. Simons, 2013-06-17
+ */
+public class CellDefinition {	
+	public final String sheetname;
+	public final int column;
+	public final int row;
+	public final String name;
+	public final String type;
+	public final String value;
+	
+	public CellDefinition(String sheetname, int column, int row, String name, String type, String value) {
+		this.sheetname = sheetname;
+		this.column = column;
+		this.row = row;
+		this.name = name;
+		this.type = type;
+		this.value = value;
+	}	
+}

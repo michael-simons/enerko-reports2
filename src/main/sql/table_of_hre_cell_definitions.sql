@@ -24,10 +24,10 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-BEGIN EXECUTE immediate 'DROP TYPE t_hre_cell FORCE'; EXCEPTION WHEN others THEN IF SQLCODE != -4043 THEN RAISE; END IF; END;
+BEGIN EXECUTE immediate 'DROP TYPE t_hre_cell_definition FORCE'; EXCEPTION WHEN others THEN IF SQLCODE != -4043 THEN RAISE; END IF; END;
 /
 
-CREATE TYPE t_hre_cell AS OBJECT (
+CREATE TYPE t_hre_cell_definition AS OBJECT (
   sheetname         VARCHAR2(512),
   cell_column       INTEGER,
   cell_row          INTEGER,
@@ -35,7 +35,7 @@ CREATE TYPE t_hre_cell AS OBJECT (
   cell_type         VARCHAR2(512),    -- string|number|date|datetime
   cell_value        VARCHAR2(32767),  -- Textuelle Repräsentation des Wertes (number mit '.', date im Format DD.MM.YYYY, datetime im Format DD.MM.YYYY HH24:MI
 
-  CONSTRUCTOR FUNCTION t_hre_cell(
+  CONSTRUCTOR FUNCTION t_hre_cell_definition(
     p_sheetname         VARCHAR2,
     p_cell_column       INTEGER,
     p_cell_row          INTEGER,
@@ -43,7 +43,7 @@ CREATE TYPE t_hre_cell AS OBJECT (
     p_cell_value        VARCHAR2
   ) RETURN self AS result,
   
-  CONSTRUCTOR FUNCTION t_hre_cell(
+  CONSTRUCTOR FUNCTION t_hre_cell_definition(
     p_sheetname         VARCHAR2,
     p_cell_column       INTEGER,
     p_cell_row          INTEGER,
@@ -54,8 +54,8 @@ CREATE TYPE t_hre_cell AS OBJECT (
 )
 /
 
-CREATE OR REPLACE TYPE BODY t_hre_cell AS
-	CONSTRUCTOR FUNCTION t_hre_cell(
+CREATE OR REPLACE TYPE BODY t_hre_cell_definition AS
+	CONSTRUCTOR FUNCTION t_hre_cell_definition(
     p_sheetname         VARCHAR2,
     p_cell_column       INTEGER,
     p_cell_row          INTEGER,
@@ -70,9 +70,9 @@ CREATE OR REPLACE TYPE BODY t_hre_cell AS
     self.cell_type   := p_cell_type;
     self.cell_value  := p_cell_value;
     RETURN;
-  END t_hre_cell;
+  END t_hre_cell_definition;
   
-  CONSTRUCTOR FUNCTION t_hre_cell(
+  CONSTRUCTOR FUNCTION t_hre_cell_definition(
     p_sheetname         VARCHAR2,
     p_cell_column       INTEGER,
     p_cell_row          INTEGER,
@@ -88,6 +88,6 @@ CREATE OR REPLACE TYPE BODY t_hre_cell AS
     self.cell_type   := p_cell_type;
     self.cell_value  := p_cell_value;
     RETURN;
-  END t_hre_cell;
+  END t_hre_cell_definition;
 END;
 /
