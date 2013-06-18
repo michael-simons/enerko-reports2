@@ -110,6 +110,31 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
 			'datatypes', 1, r, 'formula', 'SUM(1,2,3,4,5,6,7,8,9,10)'
 		));
 		
+		-- Formatvorlagen
+		r:=1;
+		pipe row(t_er_cell_definition(
+			'Nutzung von Formatvorlagen', 0, r, 'string', 'A1'
+		));
+		pipe row(t_er_cell_definition(
+			'Nutzung von Formatvorlagen', 1, r, 'string; "Formatvorlagen" A1', 'beliebiger string wert'
+		));
+		
+		r:=r+1;
+		pipe row(t_er_cell_definition(
+			'Nutzung von Formatvorlagen', 0, r, 'string', 'A2'
+		));
+		pipe row(t_er_cell_definition(
+			'Nutzung von Formatvorlagen', 1, r, 'datetime; "Formatvorlagen" A2', '06.05.2013 03:41'
+		));		
+		
+		r:=r+1;
+		pipe row(t_er_cell_definition(
+			'Nutzung von Formatvorlagen', 0, r, 'string', 'A3'
+		));
+		pipe row(t_er_cell_definition(
+			'Nutzung von Formatvorlagen', 1, r, 'number; "Formatvorlagen" A3', '-4223.123'
+		));
+		
 		RETURN;
 	END f_all_features;		
 END;

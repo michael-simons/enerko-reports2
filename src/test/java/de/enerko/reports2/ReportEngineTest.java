@@ -55,7 +55,7 @@ public class ReportEngineTest extends AbstractDatabaseTest {
 	public void displayAllFeatures() throws IOException {
 		final ReportEngine reportEngine = new ReportEngine(connection);
 				
-		final Report report = reportEngine.createReport("pck_enerko_reports2_test.f_all_features", new String[0]);
+		final Report report = reportEngine.createReport("pck_enerko_reports2_test.f_all_features", this.getClass().getResource("/template2.xls").openStream(), new String[0]);
 		
 		File outFile = File.createTempFile(ReportEngineTest.class.getSimpleName() + "-", ".xls");		
 		report.write(new BufferedOutputStream(new FileOutputStream(outFile)));
