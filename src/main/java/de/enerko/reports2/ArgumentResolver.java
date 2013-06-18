@@ -97,7 +97,7 @@ public class ArgumentResolver {
 			rs = statement.executeQuery();
 			rs.next();
 			if(rs.getInt("cnt") != 1)
-				throw new MethodNotFoundException(rs.getString("cnt"));
+				throw new MethodNotFoundException(fqn);
 			rs.close();
 			statement.close();
 			
