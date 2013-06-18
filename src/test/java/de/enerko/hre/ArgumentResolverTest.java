@@ -28,35 +28,18 @@ package de.enerko.hre;
 
 import static org.hamcrest.core.Is.is;
 
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
-import oracle.jdbc.OracleConnection;
-import oracle.jdbc.OracleDriver;
-
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.enerko.hre.ArgumentResolver.MethodNotFoundException;
 
 /**
- * 
  * @author Michael J. Simons, 2013-06-17
  */
-public class ArgumentResolverTest {
-	protected static OracleConnection connection;
-	
-	@BeforeClass
-	public static void setup() throws SQLException {
-		String connectString = "jdbc:oracle:thin:hre/hre@herakles.enerko-informatik.de:1521:orcl11";
-		DriverManager.registerDriver(new OracleDriver());
-		connection = (OracleConnection) DriverManager.getConnection(connectString);
-	}
-	
+public class ArgumentResolverTest extends AbstractDatabaseTest {	
 	@Test
 	public void shouldHandleNoArgs() {
+		
 		final ArgumentResolver argumentResolver = new ArgumentResolver(connection);
 		// In Packages
 		Assert.assertThat(argumentResolver.getArguments("pck_arg_resolver_test.f_no_args").size(), is(0));
@@ -87,10 +70,5 @@ public class ArgumentResolverTest {
 	public void shouldHandleNotExistingMethodsInPackages() {
 		final ArgumentResolver argumentResolver = new ArgumentResolver(connection);
 		argumentResolver.getArguments("foo.bar");
-	}
-	
-	@AfterClass
-	public static void tearDown() throws SQLException {
-		connection.close();
 	}
 }
