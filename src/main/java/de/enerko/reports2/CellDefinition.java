@@ -44,7 +44,13 @@ public class CellDefinition {
 			this.sheetname = sheetname;
 			this.column = column;
 			this.row = row;
-		}			
+		}
+
+		@Override
+		public String toString() {
+			return "CellPointer [sheetname=" + sheetname + ", column=" + column
+					+ ", row=" + row + "]";
+		}					
 	}
 	
 	/** Dient dazu, Typ und eine optionale Referenzzelle aus #type zu ermitteln */
