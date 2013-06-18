@@ -110,7 +110,8 @@ public class ArgumentResolver {
 				    "  from user_arguments a " +
 				    "  join user_procedures p on (p.object_name = a.package_name and p.procedure_name = a.object_name or a.package_name IS NULL and p.object_name = a.object_name) " + 
 				    " where a.position > 0 " + // Der Rückgabewert interessiert uns nicht 
-				    "   and a.sequence >= 1 " + // ebensowenig der Prozedurnamen im Fall von 0 Parametern  
+				    "   and a.sequence >= 1 " + // ebensowenig der Prozedurnamen im Fall von 0 Parametern
+				    "   and a.argument_name is not null " + // Rückgabewert von Funktionen bzw. Elementtyp des Table Types von pipelined Functions
 				    "   and lower(nvl(a.package_name, '-')) = lower(nvl(:package_name, '-')) and lower(a.object_name) = lower(:procedure_name) " +
 				    " order by a.position asc"
 			);

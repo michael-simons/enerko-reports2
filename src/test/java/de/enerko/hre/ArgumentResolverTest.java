@@ -55,6 +55,7 @@ public class ArgumentResolverTest extends AbstractDatabaseTest {
 		// In Packages
 		Assert.assertThat(argumentResolver.getArguments("pck_hre_test.f_some_args").size(), is(4));
 		Assert.assertThat(argumentResolver.getArguments("pck_hre_test.p_some_args").size(), is(4));
+		Assert.assertThat(argumentResolver.getArguments("pck_hre_test.f_fb_report_source_test").size(), is(3));
 		// und Standalone
 		Assert.assertThat(argumentResolver.getArguments("f_arg_resolver_test_some_args").size(), is(4));
 		Assert.assertThat(argumentResolver.getArguments("p_arg_resolver_test_some_args").size(), is(4));
