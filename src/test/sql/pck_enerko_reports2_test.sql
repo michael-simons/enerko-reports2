@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE pck_hre_test AS
+CREATE OR REPLACE PACKAGE pck_enerko_reports2_test AS
 	FUNCTION f_no_args RETURN NUMBER;
 	
 	PROCEDURE p_no_args;
@@ -13,7 +13,7 @@ END;
 
 sho err
 
-CREATE OR REPLACE PACKAGE BODY pck_hre_test AS
+CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
 	FUNCTION f_no_args RETURN NUMBER IS
 	BEGIN
 		return -1;
