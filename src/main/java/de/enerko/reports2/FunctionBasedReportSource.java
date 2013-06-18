@@ -44,7 +44,7 @@ public class FunctionBasedReportSource implements ReportSource {
 	private final String sqlStatement;
 	private final ConcreteArgument[] arguments;
 	
-	public FunctionBasedReportSource(OracleConnection connection, final String methodName, final String... arguments) throws SQLException {
+	public FunctionBasedReportSource(OracleConnection connection, final String methodName, final String... arguments) {
 		this.connection = connection;
 		
 		// Anzahl und Typ der Argumente bestimmen
