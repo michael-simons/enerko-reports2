@@ -43,8 +43,8 @@ public class ArgumentResolverTest extends AbstractDatabaseTest {
 		
 		final ArgumentResolver argumentResolver = new ArgumentResolver(connection);
 		// In Packages
-		Assert.assertThat(argumentResolver.getArguments("pck_hre_test.f_no_args").size(), is(0));
-		Assert.assertThat(argumentResolver.getArguments("pck_hre_test.p_no_args").size(), is(0));
+		Assert.assertThat(argumentResolver.getArguments("pck_enerko_reports2_test.f_no_args").size(), is(0));
+		Assert.assertThat(argumentResolver.getArguments("pck_enerko_reports2_test.p_no_args").size(), is(0));
 		// und Standalone
 		Assert.assertThat(argumentResolver.getArguments("f_arg_resolver_test_no_args").size(), is(0));
 		Assert.assertThat(argumentResolver.getArguments("p_arg_resolver_test_no_args").size(), is(0));
@@ -54,9 +54,9 @@ public class ArgumentResolverTest extends AbstractDatabaseTest {
 	public void shouldHandleArgs() {
 		final ArgumentResolver argumentResolver = new ArgumentResolver(connection);
 		// In Packages
-		Assert.assertThat(argumentResolver.getArguments("pck_hre_test.f_some_args").size(), is(4));
-		Assert.assertThat(argumentResolver.getArguments("pck_hre_test.p_some_args").size(), is(4));
-		Assert.assertThat(argumentResolver.getArguments("pck_hre_test.f_fb_report_source_test").size(), is(3));
+		Assert.assertThat(argumentResolver.getArguments("pck_enerko_reports2_test.f_some_args").size(), is(4));
+		Assert.assertThat(argumentResolver.getArguments("pck_enerko_reports2_test.p_some_args").size(), is(4));
+		Assert.assertThat(argumentResolver.getArguments("pck_enerko_reports2_test.f_fb_report_source_test").size(), is(3));
 		// und Standalone
 		Assert.assertThat(argumentResolver.getArguments("f_arg_resolver_test_some_args").size(), is(4));
 		Assert.assertThat(argumentResolver.getArguments("p_arg_resolver_test_some_args").size(), is(4));
