@@ -5,7 +5,7 @@
 	<artifactId>enerko-reports2</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>ENERKOs horrible Report Engine</name>
+	<name>ENERKOs Report Engine</name>
 
 	<prerequisites>
 		<maven>3.0.4</maven>
