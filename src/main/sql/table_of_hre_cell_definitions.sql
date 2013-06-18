@@ -24,70 +24,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-BEGIN EXECUTE immediate 'DROP TYPE t_hre_cell_definition FORCE'; EXCEPTION WHEN others THEN IF SQLCODE != -4043 THEN RAISE; END IF; END;
+BEGIN EXECUTE immediate 'DROP TYPE table_of_hre_cell_definitions FORCE'; EXCEPTION WHEN others THEN IF SQLCODE != -4043 THEN RAISE; END IF; END;
 /
 
-CREATE TYPE t_hre_cell_definition AS OBJECT (
-  sheetname         VARCHAR2(512),
-  cell_column       INTEGER,
-  cell_row          INTEGER,
-  cell_name         VARCHAR2(64),
-  cell_type         VARCHAR2(512),    -- string|number|date|datetime
-  cell_value        VARCHAR2(32767),  -- Textuelle Repräsentation des Wertes (number mit '.', date im Format DD.MM.YYYY, datetime im Format DD.MM.YYYY HH24:MI
-
-  CONSTRUCTOR FUNCTION t_hre_cell_definition(
-    p_sheetname         VARCHAR2,
-    p_cell_column       INTEGER,
-    p_cell_row          INTEGER,
-    p_cell_type         VARCHAR2,
-    p_cell_value        VARCHAR2
-  ) RETURN self AS result,
-  
-  CONSTRUCTOR FUNCTION t_hre_cell_definition(
-    p_sheetname         VARCHAR2,
-    p_cell_column       INTEGER,
-    p_cell_row          INTEGER,
-    p_cell_name         VARCHAR2,
-    p_cell_type         VARCHAR2,
-    p_cell_value        VARCHAR2
-  ) RETURN self AS result
-)
-/
-
-CREATE OR REPLACE TYPE BODY t_hre_cell_definition AS
-	CONSTRUCTOR FUNCTION t_hre_cell_definition(
-    p_sheetname         VARCHAR2,
-    p_cell_column       INTEGER,
-    p_cell_row          INTEGER,
-    p_cell_type         VARCHAR2,
-    p_cell_value        VARCHAR2
-  ) RETURN self AS result IS
-  BEGIN
-  	self.sheetname   := p_sheetname;
-    self.cell_column := p_cell_column;
-    self.cell_row    := p_cell_row;   
-    self.cell_name   := null; 
-    self.cell_type   := p_cell_type;
-    self.cell_value  := p_cell_value;
-    RETURN;
-  END t_hre_cell_definition;
-  
-  CONSTRUCTOR FUNCTION t_hre_cell_definition(
-    p_sheetname         VARCHAR2,
-    p_cell_column       INTEGER,
-    p_cell_row          INTEGER,
-    p_cell_name         VARCHAR2,
-    p_cell_type         VARCHAR2,
-    p_cell_value        VARCHAR2
-  ) RETURN self AS result IS
-  BEGIN
-  	self.sheetname   := p_sheetname;
-    self.cell_column := p_cell_column;
-    self.cell_row    := p_cell_row;   
-    self.cell_name   := p_cell_name; 
-    self.cell_type   := p_cell_type;
-    self.cell_value  := p_cell_value;
-    RETURN;
-  END t_hre_cell_definition;
-END;
+CREATE TYPE table_of_hre_cell_definitions AS TABLE OF t_hre_cell_definition
 /
