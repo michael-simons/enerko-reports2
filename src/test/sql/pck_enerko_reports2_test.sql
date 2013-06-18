@@ -135,6 +135,12 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
 			'Nutzung von Formatvorlagen', 1, r, 'number; "Formatvorlagen" A3', '-4223.123'
 		));
 		
+		FOR i IN 0 .. 19 LOOP
+		pipe row(t_er_cell_definition(
+			'diagramme', 0, i, 'formula', 'EXP(' || i || ')'
+		));
+		END LOOP;
+		
 		RETURN;
 	END f_all_features;		
 END;
