@@ -26,18 +26,42 @@
  */
 package de.enerko.reports2;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Repräsentiert eine Zelle eines Worksheets und korrespondiert
  * mit dem PL/SQL Type t_hre_cell_definition
  * @author Michael J. Simons, 2013-06-17
  */
 public class CellDefinition {	
+	public static class CellPointer {
+		public final String sheetname;
+		public final int column;
+		public final int row;
+		
+		public CellPointer(String sheetname, int column, int row) {
+			this.sheetname = sheetname;
+			this.column = column;
+			this.row = row;
+		}			
+	}
+	
+	/** Dient dazu, Typ und eine optionale Referenzzelle aus #type zu ermitteln */
+	public final static Pattern FORMAT_PATTERN = Pattern.compile("(\\w+)(\\s*;\\s*\"([^\"]+)\"\\s*(\\w{1,3}\\d{1,}))?");
+	
 	public final String sheetname;
 	public final int column;
 	public final int row;
 	public final String name;
-	public final String type;
+	/** Kann Typ aber auch Formatvorlage bzw. Referenzzelle in Form 'datentyp; "Name des Worksheets" SPALTEZEILE' enthalten */
+	private final String type;
 	public final String value;
+	
+	/** Tatsächlicher Datentyp */
+	private String actualType;
+	/** Referenzzelle */
+	private CellPointer referenceCell;
 	
 	public CellDefinition(String sheetname, int column, int row, String name, String type, String value) {
 		this.sheetname = sheetname;
@@ -47,4 +71,28 @@ public class CellDefinition {
 		this.type = type;
 		this.value = value;
 	}	
+	
+	public String getType() {
+		if(this.actualType == null)
+			this.computeActualTypeAndReferenceCell();	
+		return this.actualType;
+	}
+	
+	public CellPointer getReferenceCell() {
+		if(this.actualType == null)
+			this.computeActualTypeAndReferenceCell();
+		return referenceCell;
+	}
+
+	public void setReferenceCell(CellPointer referenceCell) {
+		this.referenceCell = referenceCell;
+	}
+
+	private void computeActualTypeAndReferenceCell() {
+		final Matcher m = FORMAT_PATTERN.matcher(this.type);
+		if(!m.matches())
+			throw new RuntimeException("Invalid type definition: " + type);
+		this.actualType = m.group(1);		
+		this.referenceCell = m.group(2) == null ? null :new CellPointer(m.group(3), CellReferenceHelper.getColumn(m.group(4)), CellReferenceHelper.getRow(m.group(4)));		
+	}
 }

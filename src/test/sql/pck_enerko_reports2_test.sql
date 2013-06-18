@@ -8,6 +8,8 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2_test AS
 	PROCEDURE p_some_args (p_number IN NUMBER, p_date IN DATE, p_datetime IN TIMESTAMP, p_string IN  VARCHAR2);
 	
 	FUNCTION f_fb_report_source_test(num_rows NUMBER, p_test_date IN DATE, p_test_string IN VARCHAR2) RETURN table_of_er_cell_definitions pipelined;
+	
+	FUNCTION f_all_features RETURN table_of_er_cell_definitions pipelined;
 END;
 /
 
@@ -49,6 +51,61 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
       	END LOOP;
       	RETURN; 
 	END f_fb_report_source_test;
+	
+	FUNCTION f_all_features RETURN table_of_er_cell_definitions pipelined IS
+		r INTEGER;
+	BEGIN
+		r:=0;		
+		-- Datentypen
+		pipe row(t_er_cell_definition(
+			'datatypes', 0, r, 'string', 'Bezeichnung'
+		));
+		pipe row(t_er_cell_definition(
+			'datatypes', 1, r, 'string', 'Wert'
+		));
+		
+		r:=r+1;
+		pipe row(t_er_cell_definition(
+			'datatypes', 0, r, 'string', 'string'
+		));
+		pipe row(t_er_cell_definition(
+			'datatypes', 1, r, 'string', 'beliebiger string wert'
+		));
+		
+		r:=r+1;
+		pipe row(t_er_cell_definition(
+			'datatypes', 0, r, 'string', 'number'
+		));
+		pipe row(t_er_cell_definition(
+			'datatypes', 1, r, 'number', '42.23'
+		));
+				
+		r:=r+1;
+		pipe row(t_er_cell_definition(
+			'datatypes', 0, r, 'string', 'date'
+		));
+		pipe row(t_er_cell_definition(
+			'datatypes', 1, r, 'date', '06.05.2013'
+		));
+		
+		r:=r+1;
+		pipe row(t_er_cell_definition(
+			'datatypes', 0, r, 'string', 'date'
+		));
+		pipe row(t_er_cell_definition(
+			'datatypes', 1, r, 'datetime', '06.05.2013 03:41'
+		));
+		
+		r:=r+1;
+		pipe row(t_er_cell_definition(
+			'datatypes', 0, r, 'string', 'formula'
+		));
+		pipe row(t_er_cell_definition(
+			'datatypes', 1, r, 'formula', 'SUM(1,2,3,4,5,6,7,8,9,10)'
+		));
+		
+		RETURN;
+	END f_all_features;		
 END;
 /
 
