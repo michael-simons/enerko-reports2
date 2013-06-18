@@ -79,6 +79,12 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
 		pipe row(t_er_cell_definition(
 			'datatypes', 1, r, 'number', '42.23'
 		));
+		pipe row(t_er_cell_definition(
+			'datatypes', 2, r, 'string', 'Mit Formatierung'
+		));
+		pipe row(t_er_cell_definition(
+			'datatypes', 3, r, 'number', '42.23@@#0.000'
+		));
 				
 		r:=r+1;
 		pipe row(t_er_cell_definition(
