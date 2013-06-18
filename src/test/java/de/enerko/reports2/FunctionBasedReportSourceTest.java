@@ -24,57 +24,35 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.hre;
+package de.enerko.reports2;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
-import oracle.jdbc.OracleConnection;
+import org.junit.Test;
+
+import de.enerko.reports2.CellDefinition;
+import de.enerko.reports2.FunctionBasedReportSource;
 
 /**
- * Führt das im Konstruktor übergebene Statement aus und stellt eine Liste von
- * {@link CellDefinition}s zur Verfügung. Es wird während der Iteration geprüft,
- * ob alle notwendingen Spalten definiert sind.
  * @author Michael J. Simons, 2013-06-18
  */
-public class StatementBasedReportSource implements ReportSource {
-	private final Statement statement;
-	private final ColumnExtractor resultSet;
-	
-	public StatementBasedReportSource(OracleConnection connection, final String statement) throws SQLException {		
-		this.statement = connection.createStatement();
-		this.resultSet = new ColumnExtractor(this.statement.executeQuery(statement));
-	}
-
-	public boolean hasNext() {
-		boolean rv = false;
-		try {
-			rv = this.resultSet.next();
-		} catch(SQLException e) {			
-		} finally {
-			if(!rv) {
-				try {
-					this.statement.close();
-					this.resultSet.close();
-				} catch(SQLException e) {					
-				}
-			}
-		}		
-		return rv;
-	}
-
-	public CellDefinition next() {
-		return new CellDefinition(
-					this.resultSet.get(String.class, "sheetname"),
-					this.resultSet.get(int.class, "cell_column"),
-					this.resultSet.get(int.class, "cell_row"),
-					this.resultSet.get(String.class, "cell_name"),
-					this.resultSet.get(String.class, "cell_type"),
-					this.resultSet.get(String.class, "cell_value")
-			);
-	}
-
-	public void remove() {
-		throw new UnsupportedOperationException("Method \"remove\" is not supported!");
+public class FunctionBasedReportSourceTest extends AbstractDatabaseTest {
+	@Test
+	public void shouldHandlePipelinedFunction() throws SQLException {
+		final String methodName = "pck_hre_test.f_fb_report_source_test";
+		
+		final FunctionBasedReportSource reportSource = 
+				new FunctionBasedReportSource(connection,  methodName, "5", "1979-09-21", "test");
+		final List<CellDefinition> cellDefinitions = new ArrayList<CellDefinition>();
+		while(reportSource.hasNext())
+			cellDefinitions.add(reportSource.next());
+		assertThat(cellDefinitions.size(), is(5));
+		
+		 
 	}
 }

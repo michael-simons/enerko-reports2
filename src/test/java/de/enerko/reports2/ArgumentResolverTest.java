@@ -24,14 +24,15 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.hre;
+package de.enerko.reports2;
 
 import static org.hamcrest.core.Is.is;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.enerko.hre.ArgumentResolver.MethodNotFoundException;
+import de.enerko.reports2.ArgumentResolver;
+import de.enerko.reports2.ArgumentResolver.MethodNotFoundException;
 
 /**
  * @author Michael J. Simons, 2013-06-17

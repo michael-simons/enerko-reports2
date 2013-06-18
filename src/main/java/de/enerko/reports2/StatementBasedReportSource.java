@@ -24,32 +24,57 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.hre;
+package de.enerko.reports2;
 
-import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import oracle.jdbc.OracleConnection;
-import oracle.jdbc.OracleDriver;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 
 /**
+ * Führt das im Konstruktor übergebene Statement aus und stellt eine Liste von
+ * {@link CellDefinition}s zur Verfügung. Es wird während der Iteration geprüft,
+ * ob alle notwendingen Spalten definiert sind.
  * @author Michael J. Simons, 2013-06-18
  */
-public abstract class AbstractDatabaseTest {
-	protected static OracleConnection connection;
+public class StatementBasedReportSource implements ReportSource {
+	private final Statement statement;
+	private final ColumnExtractor resultSet;
 	
-	@BeforeClass
-	public static void setup() throws SQLException {
-		String connectString = "jdbc:oracle:thin:hre/hre@herakles.enerko-informatik.de:1521:orcl11";
-		DriverManager.registerDriver(new OracleDriver());
-		connection = (OracleConnection) DriverManager.getConnection(connectString);
+	public StatementBasedReportSource(OracleConnection connection, final String statement) throws SQLException {		
+		this.statement = connection.createStatement();
+		this.resultSet = new ColumnExtractor(this.statement.executeQuery(statement));
 	}
-	
-	@AfterClass
-	public static void tearDown() throws SQLException {
-		connection.close();
+
+	public boolean hasNext() {
+		boolean rv = false;
+		try {
+			rv = this.resultSet.next();
+		} catch(SQLException e) {			
+		} finally {
+			if(!rv) {
+				try {
+					this.statement.close();
+					this.resultSet.close();
+				} catch(SQLException e) {					
+				}
+			}
+		}		
+		return rv;
+	}
+
+	public CellDefinition next() {
+		return new CellDefinition(
+					this.resultSet.get(String.class, "sheetname"),
+					this.resultSet.get(int.class, "cell_column"),
+					this.resultSet.get(int.class, "cell_row"),
+					this.resultSet.get(String.class, "cell_name"),
+					this.resultSet.get(String.class, "cell_type"),
+					this.resultSet.get(String.class, "cell_value")
+			);
+	}
+
+	public void remove() {
+		throw new UnsupportedOperationException("Method \"remove\" is not supported!");
 	}
 }

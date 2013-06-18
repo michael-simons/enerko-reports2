@@ -24,7 +24,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.hre;
+package de.enerko.reports2;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -35,21 +35,36 @@ import java.util.List;
 
 import org.junit.Test;
 
+import de.enerko.reports2.CellDefinition;
+import de.enerko.reports2.StatementBasedReportSource;
+import de.enerko.reports2.ReportSource.MissingReportColumn;
+
 /**
  * @author Michael J. Simons, 2013-06-18
  */
-public class FunctionBasedReportSourceTest extends AbstractDatabaseTest {
+public class StatementBasedReportSourceTest extends AbstractDatabaseTest {
+	@Test(expected=MissingReportColumn.class)
+	public void shouldHandleMissingColumns() throws SQLException {
+		final StatementBasedReportSource reportSource = new StatementBasedReportSource(connection, "Select 1 as test from dual");
+		while(reportSource.hasNext())
+			System.out.println(reportSource.next());
+	}
+	
+	@Test(expected=SQLException.class)
+	public void shouldHandleSQLErrors() throws SQLException {
+		final StatementBasedReportSource reportSource = new StatementBasedReportSource(connection, "Select 1");
+		while(reportSource.hasNext())
+			System.out.println(reportSource.next());
+	}
+	
 	@Test
-	public void shouldHandlePipelinedFunction() throws SQLException {
-		final String methodName = "pck_hre_test.f_fb_report_source_test";
-		
-		final FunctionBasedReportSource reportSource = 
-				new FunctionBasedReportSource(connection,  methodName, "5", "1979-09-21", "test");
+	public void shouldHandleValidSelect() throws SQLException {
+		final StatementBasedReportSource reportSource = 
+				new StatementBasedReportSource(connection, 
+						"Select 's1' as sheetname, 1 as cell_column, 1 as cell_row, 'c1' as cell_name, 'ct' as cell_type, 'cv' as cell_value from dual");
 		final List<CellDefinition> cellDefinitions = new ArrayList<CellDefinition>();
 		while(reportSource.hasNext())
 			cellDefinitions.add(reportSource.next());
-		assertThat(cellDefinitions.size(), is(5));
-		
-		 
+		assertThat(cellDefinitions.size(), is(1));
 	}
 }

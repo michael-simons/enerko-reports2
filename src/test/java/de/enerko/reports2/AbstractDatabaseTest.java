@@ -24,27 +24,32 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.hre;
+package de.enerko.reports2;
+
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import oracle.jdbc.OracleConnection;
+import oracle.jdbc.OracleDriver;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 /**
- * Repräsentiert eine Zelle eines Worksheets und korrespondiert
- * mit dem PL/SQL Type t_hre_cell_definition
- * @author Michael J. Simons, 2013-06-17
+ * @author Michael J. Simons, 2013-06-18
  */
-public class CellDefinition {	
-	public final String sheetname;
-	public final int column;
-	public final int row;
-	public final String name;
-	public final String type;
-	public final String value;
+public abstract class AbstractDatabaseTest {
+	protected static OracleConnection connection;
 	
-	public CellDefinition(String sheetname, int column, int row, String name, String type, String value) {
-		this.sheetname = sheetname;
-		this.column = column;
-		this.row = row;
-		this.name = name;
-		this.type = type;
-		this.value = value;
-	}	
+	@BeforeClass
+	public static void setup() throws SQLException {
+		String connectString = "jdbc:oracle:thin:hre/hre@herakles.enerko-informatik.de:1521:orcl11";
+		DriverManager.registerDriver(new OracleDriver());
+		connection = (OracleConnection) DriverManager.getConnection(connectString);
+	}
+	
+	@AfterClass
+	public static void tearDown() throws SQLException {
+		connection.close();
+	}
 }

@@ -24,14 +24,14 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.hre;
+package de.enerko.reports2;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
 import oracle.jdbc.OracleConnection;
-import de.enerko.hre.FormalArgument.DataType;
+import de.enerko.reports2.FormalArgument.DataType;
 
 /**
  * Diese Reportquelle repräsentiert den Aufruf einer pipelined Function.

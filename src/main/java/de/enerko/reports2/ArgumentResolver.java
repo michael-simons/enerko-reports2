@@ -24,9 +24,9 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.hre;
+package de.enerko.reports2;
 
-import static de.enerko.hre.Unchecker.uncheck;
+import static de.enerko.reports2.Unchecker.uncheck;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
