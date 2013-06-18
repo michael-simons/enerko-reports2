@@ -28,6 +28,7 @@ package de.enerko.reports2;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 import oracle.jdbc.OracleConnection;
@@ -38,11 +39,22 @@ import de.enerko.reports2.FormalArgument.DataType;
  * Es werden zur Zeit folgende Datentypen als Parameter unterstützt {@link DataType}.
  * @author Michael J. Simons, 2013-06-18
  */
-public class FunctionBasedReportSource {	
-	private final PreparedStatement statement;
-	private final ColumnExtractor resultSet;
+public class FunctionBasedReportSource implements ReportSource {
+	private final OracleConnection connection;
+	private final String sqlStatement;
+	private final ConcreteArgument[] arguments;
 	
 	public FunctionBasedReportSource(OracleConnection connection, final String methodName, final String... arguments) throws SQLException {
+		this.connection = connection;
+		
+		// Anzahl und Typ der Argumente bestimmen
+		final ArgumentResolver argumentResolver = new ArgumentResolver(connection);
+		final List<FormalArgument> formalArguments = argumentResolver.getArguments(methodName);
+		
+		if(formalArguments.size() != arguments.length)
+			throw new RuntimeException("Anzahl formaler Argumente != Anzahl konkreter Argumente!");
+		
+		// SQL Statementstring erstellen
 		final StringBuilder sb = new StringBuilder();
 		String sep = "";
 		sb.append("Select * from table(").append(methodName).append("(");
@@ -51,46 +63,23 @@ public class FunctionBasedReportSource {
 			sep = ", ";			
 		}
 		sb.append("))");			
+		this.sqlStatement = sb.toString();
 		
-		final ArgumentResolver argumentResolver = new ArgumentResolver(connection);
-		final List<FormalArgument> formalArguments = argumentResolver.getArguments(methodName);
-		
-		this.statement = connection.prepareStatement(sb.toString());
+		this.arguments = new ConcreteArgument[arguments.length];
+		int cnt = 0;
 		for(FormalArgument argument : formalArguments)
 			// Position in PL/SQL ist 1-basiert
-			new ConcreteArgument(argument, arguments[argument.position-1]).setTo(statement);
-		this.resultSet = new ColumnExtractor(this.statement.executeQuery());
+			this.arguments[cnt++] = new ConcreteArgument(argument, arguments[argument.position-1]);		
 	}
-	
-	public boolean hasNext() {
-		boolean rv = false;
+
+	public Iterator<CellDefinition> iterator() {
 		try {
-			rv = this.resultSet.next();
-		} catch(SQLException e) {			
-		} finally {
-			if(!rv) {
-				try {
-					this.statement.close();
-					this.resultSet.close();
-				} catch(SQLException e) {					
-				}
-			}
-		}		
-		return rv;
-	}
-
-	public CellDefinition next() {
-		return new CellDefinition(
-					this.resultSet.get(String.class, "sheetname"),
-					this.resultSet.get(int.class, "cell_column"),
-					this.resultSet.get(int.class, "cell_row"),
-					this.resultSet.get(String.class, "cell_name"),
-					this.resultSet.get(String.class, "cell_type"),
-					this.resultSet.get(String.class, "cell_value")
-			);
-	}
-
-	public void remove() {
-		throw new UnsupportedOperationException("Method \"remove\" is not supported!");
+			final PreparedStatement statement = this.connection.prepareStatement(this.sqlStatement);
+			for(ConcreteArgument argument : arguments)
+				argument.setTo(statement);
+			return new ReportSourceIterator(statement.executeQuery());
+		} catch (SQLException e) {
+			throw Unchecker.uncheck(e);
+		}
 	}
 }

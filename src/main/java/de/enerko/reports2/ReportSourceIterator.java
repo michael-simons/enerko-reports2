@@ -32,25 +32,54 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import de.enerko.reports2.ReportSource.MissingReportColumn;
+import java.sql.Statement;
+import java.util.Iterator;
 
 /**
- * Ein Wrapper um ein ResultSet, das über Reflections skalare Werte extrahiert.
- * Wird eine Spalte nicht gefunden, wird eine eindeutige {@link MissingReportColumn}
- * Exception geworfen, alle anderen {@link SQLException} werden weitergereicht.
- * 
  * @author Michael J. Simons, 2013-06-18
  */
-public class ColumnExtractor {
-	private final Class<ResultSet> clazz;
+class ReportSourceIterator implements Iterator<CellDefinition> {			
 	private final ResultSet resultSet;
+	private final Class<ResultSet> clazz;	
 	
-	public ColumnExtractor(ResultSet resultSet) {
+	public ReportSourceIterator(final ResultSet resultSet) {
 		this.resultSet = resultSet;		
 		this.clazz = (Class<ResultSet>) this.resultSet.getClass();
 	}
 
+	public boolean hasNext() {
+		boolean rv = false;
+		try {
+			rv = this.resultSet.next();
+		} catch(SQLException e) {			
+		} finally {
+			if(!rv) {
+				try {					
+					final Statement statement = this.resultSet.getStatement();
+					this.resultSet.close();
+					statement.close();
+				} catch(SQLException e) {					
+				}
+			}
+		}		
+		return rv;
+	}
+
+	public CellDefinition next() {
+		return new CellDefinition(
+					this.get(String.class, "sheetname"),
+					this.get(int.class, "cell_column"),
+					this.get(int.class, "cell_row"),
+					this.get(String.class, "cell_name"),
+					this.get(String.class, "cell_type"),
+					this.get(String.class, "cell_value")
+			);
+	}
+
+	public void remove() {
+		throw new UnsupportedOperationException("Method \"remove\" is not supported!");
+	}		
+	
 	/**
 	 * Extrahiert den Wert vom Typ <code>typeClazz</code> aus dem 
 	 * <code>resultSet</code> für die Spalte <code>columnName</code><br>
@@ -88,12 +117,4 @@ public class ColumnExtractor {
 				throw uncheck(e.getCause());
 		}
 	}
-
-	public boolean next() throws SQLException {
-		return resultSet.next();
-	}
-
-	public void close() throws SQLException {
-		resultSet.close();
-	}	
 }

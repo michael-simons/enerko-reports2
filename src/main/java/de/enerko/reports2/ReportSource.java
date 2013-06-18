@@ -26,7 +26,7 @@
  */
 package de.enerko.reports2;
 
-import java.util.Iterator;
+
 
 /**
  * Repräsentiert die Quelle eines Reports und erzeugt eine Liste von
@@ -36,7 +36,7 @@ import java.util.Iterator;
  * sein, die Werte von Typ t_hre_cell_definition zurück gibt.
  * @author Michael J. Simons, 2013-06-18
  */
-public interface ReportSource extends Iterator<CellDefinition> {
+public interface ReportSource extends Iterable<CellDefinition> {
 	public static class MissingReportColumn extends RuntimeException {
 		private static final long serialVersionUID = 6501253894707117785L;
 		

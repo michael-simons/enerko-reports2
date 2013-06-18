@@ -35,8 +35,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import de.enerko.reports2.CellDefinition;
-import de.enerko.reports2.StatementBasedReportSource;
 import de.enerko.reports2.ReportSource.MissingReportColumn;
 
 /**
@@ -46,15 +44,15 @@ public class StatementBasedReportSourceTest extends AbstractDatabaseTest {
 	@Test(expected=MissingReportColumn.class)
 	public void shouldHandleMissingColumns() throws SQLException {
 		final StatementBasedReportSource reportSource = new StatementBasedReportSource(connection, "Select 1 as test from dual");
-		while(reportSource.hasNext())
-			System.out.println(reportSource.next());
+		for(CellDefinition cellDefinition : reportSource)			
+			System.out.println(cellDefinition);
 	}
 	
 	@Test(expected=SQLException.class)
 	public void shouldHandleSQLErrors() throws SQLException {
 		final StatementBasedReportSource reportSource = new StatementBasedReportSource(connection, "Select 1");
-		while(reportSource.hasNext())
-			System.out.println(reportSource.next());
+		for(CellDefinition cellDefinition : reportSource)			
+			System.out.println(cellDefinition);
 	}
 	
 	@Test
@@ -63,8 +61,8 @@ public class StatementBasedReportSourceTest extends AbstractDatabaseTest {
 				new StatementBasedReportSource(connection, 
 						"Select 's1' as sheetname, 1 as cell_column, 1 as cell_row, 'c1' as cell_name, 'ct' as cell_type, 'cv' as cell_value from dual");
 		final List<CellDefinition> cellDefinitions = new ArrayList<CellDefinition>();
-		while(reportSource.hasNext())
-			cellDefinitions.add(reportSource.next());
+		for(CellDefinition cellDefinition : reportSource)
+			cellDefinitions.add(cellDefinition);
 		assertThat(cellDefinitions.size(), is(1));
 	}
 }

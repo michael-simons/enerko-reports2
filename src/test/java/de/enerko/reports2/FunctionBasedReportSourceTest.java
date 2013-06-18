@@ -35,9 +35,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import de.enerko.reports2.CellDefinition;
-import de.enerko.reports2.FunctionBasedReportSource;
-
 /**
  * @author Michael J. Simons, 2013-06-18
  */
@@ -47,10 +44,10 @@ public class FunctionBasedReportSourceTest extends AbstractDatabaseTest {
 		final String methodName = "pck_enerko_reports2_test.f_fb_report_source_test";
 		
 		final FunctionBasedReportSource reportSource = 
-				new FunctionBasedReportSource(connection,  methodName, "5", "1979-09-21", "test");
+				new FunctionBasedReportSource(connection,  methodName, "5", "21.09.1979", "test");
 		final List<CellDefinition> cellDefinitions = new ArrayList<CellDefinition>();
-		while(reportSource.hasNext())
-			cellDefinitions.add(reportSource.next());
+		for(CellDefinition cellDefinition : reportSource)
+			cellDefinitions.add(cellDefinition);
 		assertThat(cellDefinitions.size(), is(5));
 	}
 }
