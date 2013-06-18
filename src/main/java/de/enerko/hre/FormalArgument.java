@@ -33,7 +33,7 @@ package de.enerko.hre;
 public class FormalArgument implements Comparable<FormalArgument> {
 	/** Unterstützte Datentypen von Funktions / Methodenparametern */
 	public static enum DataType {
-		varchar2, date, timestamp, number
+		varchar2, number, date, timestamp
 	}
 	
 	/** Position in der Parameterliste */
@@ -63,5 +63,12 @@ public class FormalArgument implements Comparable<FormalArgument> {
 
 	public int compareTo(FormalArgument o) {
 		return this.position - o.position;
+	}
+
+	@Override
+	public String toString() {
+		return "FormalArgument [position=" + position + ", name=" + name
+				+ ", dataTypeName=" + dataTypeName + ", dataType=" + dataType
+				+ "]";
 	}
 }
