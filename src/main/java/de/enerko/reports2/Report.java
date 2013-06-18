@@ -158,7 +158,7 @@ public class Report {
 				final Row referenceRow = referenceSheet.getRow(cellDefinition.getReferenceCell().row);
 				final Cell referenceCell = referenceRow == null ? null : referenceRow.getCell(cellDefinition.getReferenceCell().column);				
 				if(referenceCell != null && referenceCell.getCellStyle() != null)
-					cell.getCellStyle().cloneStyleFrom(referenceCell.getCellStyle());				
+					cell.setCellStyle(referenceCell.getCellStyle());				
 			}
 		}		
 	}
