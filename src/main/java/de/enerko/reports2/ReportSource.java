@@ -34,7 +34,7 @@ import java.util.Iterator;
  * oder ein Funktionsname sein.<br>
  * Falls die Quelle ein Funktion ist, muss diese Funktion eine pipelined Function
  * sein, die Werte von Typ t_hre_cell_definition zurück gibt.
- * @author Michael J. Simons, 2013-07-18
+ * @author Michael J. Simons, 2013-06-18
  */
 public interface ReportSource extends Iterator<CellDefinition> {
 	public static class MissingReportColumn extends RuntimeException {
