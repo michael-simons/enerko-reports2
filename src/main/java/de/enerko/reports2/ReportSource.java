@@ -26,14 +26,13 @@
  */
 package de.enerko.reports2;
 
-
+import java.util.Iterator;
 
 /**
- * Repräsentiert die Quelle eines Reports und erzeugt eine Liste von
- * {@link CellDefinition}s. Quelle kann entweder ein einfaches SQL-Statement
- * oder ein Funktionsname sein.<br>
- * Falls die Quelle ein Funktion ist, muss diese Funktion eine pipelined Function
- * sein, die Werte von Typ t_hre_cell_definition zurück gibt.
+ * Represents the source of a report. A ReportSource is iterable and
+ * contains a list of {@link CellDefinition}s. 
+ * The source requires the database each time a new {@link Iterator} is
+ * requested.
  * @author Michael J. Simons, 2013-06-18
  */
 public interface ReportSource extends Iterable<CellDefinition> {

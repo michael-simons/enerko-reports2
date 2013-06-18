@@ -27,22 +27,23 @@
 package de.enerko.reports2;
 
 /**
- * Repräsentiert einen formalen Parameter einer Oracle Datenbank Funktion / Prozedur
+ * Represents a formal argument of an Oracle stored PL/SQL procedure or method
+ * including its datatype and the position inside the call
  * @author Michael J. Simons, 2013-06-17
  */
 public class FormalArgument implements Comparable<FormalArgument> {
-	/** Unterstützte Datentypen von Funktions / Methodenparametern */
+	/** Support datatypes of method arguments */
 	public static enum DataType {
 		varchar2, number, date, timestamp
 	}
 	
-	/** Position in der Parameterliste */
+	/** Position in the list of arguments */
 	public final int position;
-	/** Name (eines benannten Parameters) */
+	/** Name of a named parameter */
 	public final String name;
-	/** Name des Datentyp (wie im Oracle Datadictionary */
+	/** Name of the datatype (corresponds to the Oracle Datedictionary */
 	public final String dataTypeName;
-	/** Unterstützter Datentyp für den dynamischen Aufruf */
+	/** Not null if {@link #dataTypeName} represents a {@link DataType} */
 	public final DataType dataType;
 	
 	public FormalArgument(int position, String name, final String dataTypeName) {
@@ -54,9 +55,9 @@ public class FormalArgument implements Comparable<FormalArgument> {
 			if(this.dataTypeName != null)
 			hlp = DataType.valueOf(this.dataTypeName.trim().toLowerCase());
 		} catch(IllegalArgumentException e) {
-			// Wird nicht in einem dynamischen Aufruf unterstützt
+			// Not supported in a dynamic call
 		} catch(NullPointerException e) {			
-			// Wird nicht in einem dynamischen Aufruf unterstützt
+			// Not supported in a dynamic call
 		}
 		this.dataType = hlp;
 	}

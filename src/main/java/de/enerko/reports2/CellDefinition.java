@@ -30,11 +30,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Repräsentiert eine Zelle eines Worksheets und korrespondiert
- * mit dem PL/SQL Type t_hre_cell_definition
+ * Represents a worksheet cell and corresponds with the 
+ * PL/SQL object type t_hre_cell_definition
  * @author Michael J. Simons, 2013-06-17
  */
 public class CellDefinition {	
+	/**
+	 * Points to another cell by sheetname, columan and row
+	 */
 	public static class CellPointer {
 		public final String sheetname;
 		public final int column;
@@ -53,20 +56,20 @@ public class CellDefinition {
 		}					
 	}
 	
-	/** Dient dazu, Typ und eine optionale Referenzzelle aus #type zu ermitteln */
+	/** Pattern to split the {@link #type} into the actual type and a reference cell */
 	public final static Pattern FORMAT_PATTERN = Pattern.compile("(\\w+)(\\s*;\\s*\"([^\"]+)\"\\s*(\\w{1,3}\\d{1,}))?");
 	
 	public final String sheetname;
 	public final int column;
 	public final int row;
 	public final String name;
-	/** Kann Typ aber auch Formatvorlage bzw. Referenzzelle in Form 'datentyp; "Name des Worksheets" SPALTEZEILE' enthalten */
+	/** Contains either type or type and a reference cell as  'datentyp; "SHEETNAME" CELLREFERENCE' */
 	private final String type;
 	public final String value;
 	
-	/** Tatsächlicher Datentyp */
+	/** Actual used datatype */
 	private String actualType;
-	/** Referenzzelle */
+	/** A reference cell */
 	private CellPointer referenceCell;
 	
 	public CellDefinition(String sheetname, int column, int row, String name, String type, String value) {

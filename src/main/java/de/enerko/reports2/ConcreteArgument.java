@@ -38,16 +38,20 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 /**
+ * A composition of a {@link FormalArgument} and a concrete {@link #value} into a
+ * concrete argument.
  * @author Michael J. Simons, 2013-06-18
  */
 public class ConcreteArgument {
 	public final static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 	public final static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 	
+	/** The formal argument that represents datatype and position in the method call */
 	private final FormalArgument formalArgument;
+	/** The string representation of the value */
 	private final String value;
+	/** A flag if the actual value is null */
 	private final boolean isNull;
-	
 	
 	public ConcreteArgument(FormalArgument formalArgument, String value) {
 		this.formalArgument = formalArgument;
@@ -55,6 +59,11 @@ public class ConcreteArgument {
 		this.isNull = this.value == null || this.value.trim().length() == 0;
 	}
 	
+	/**
+	 * Stores the concrete value {@link #value} into the given {@link PreparedStatement}
+	 * at position {@link FormalArgument#position}
+	 * @param ps The prepared statement to store the value into
+	 */
 	public void setTo(final PreparedStatement ps) {
 		if(formalArgument.dataType == null)
 			throw new IllegalArgumentException(String.format("No dataType for argument \"%s\"", formalArgument.name));

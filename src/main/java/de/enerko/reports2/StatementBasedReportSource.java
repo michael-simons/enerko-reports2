@@ -32,9 +32,8 @@ import java.util.Iterator;
 import oracle.jdbc.OracleConnection;
 
 /**
- * Führt das im Konstruktor übergebene Statement aus und stellt eine Liste von
- * {@link CellDefinition}s zur Verfügung. Es wird während der Iteration geprüft,
- * ob alle notwendingen Spalten definiert sind.
+ * This report source represents the result set auf a SQL Statement.
+ * It validates the statement and checks all necessary columns.
  * @author Michael J. Simons, 2013-06-18
  */
 public class StatementBasedReportSource implements ReportSource {

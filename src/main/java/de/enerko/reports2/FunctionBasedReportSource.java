@@ -35,8 +35,9 @@ import oracle.jdbc.OracleConnection;
 import de.enerko.reports2.FormalArgument.DataType;
 
 /**
- * Diese Reportquelle repräsentiert den Aufruf einer pipelined Function.
- * Es werden zur Zeit folgende Datentypen als Parameter unterstützt {@link DataType}.
+ * This report source represents a call of a pipellined function
+ * either in package or global scope that returns t_hre_cell_definitions<br>
+ * The function may have any of the supported {@link DataType}s as arguments
  * @author Michael J. Simons, 2013-06-18
  */
 public class FunctionBasedReportSource implements ReportSource {
@@ -47,14 +48,14 @@ public class FunctionBasedReportSource implements ReportSource {
 	public FunctionBasedReportSource(OracleConnection connection, final String methodName, final String... arguments) {
 		this.connection = connection;
 		
-		// Anzahl und Typ der Argumente bestimmen
+		// Get number and type of all arguments
 		final ArgumentResolver argumentResolver = new ArgumentResolver(connection);
 		final List<FormalArgument> formalArguments = argumentResolver.getArguments(methodName);
 		
 		if(formalArguments.size() != arguments.length)
-			throw new RuntimeException("Anzahl formaler Argumente != Anzahl konkreter Argumente!");
+			throw new RuntimeException("The number of formal arguments doesn't match the number of concrete arguments");
 		
-		// SQL Statementstring erstellen
+		// Build sql statement
 		final StringBuilder sb = new StringBuilder();
 		String sep = "";
 		sb.append("Select * from table(").append(methodName).append("(");
@@ -68,10 +69,13 @@ public class FunctionBasedReportSource implements ReportSource {
 		this.arguments = new ConcreteArgument[arguments.length];
 		int cnt = 0;
 		for(FormalArgument argument : formalArguments)
-			// Position in PL/SQL ist 1-basiert
+			// Position in PL/SQL is 1-based
 			this.arguments[cnt++] = new ConcreteArgument(argument, arguments[argument.position-1]);		
 	}
 
+	/**
+	 * Execute the query and retrieve an iterator over all celldefinitions
+	 */
 	public Iterator<CellDefinition> iterator() {
 		try {
 			final PreparedStatement statement = this.connection.prepareStatement(this.sqlStatement);

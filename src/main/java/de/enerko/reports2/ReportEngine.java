@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 import oracle.jdbc.OracleConnection;
 
 /**
+ * This is the main entry point for creating reports.
  * @author Michael J. Simons, 2013-06-18
  */
 public class ReportEngine {	
@@ -43,7 +44,7 @@ public class ReportEngine {
 	}
 	
 	/**
-	 * Erstellt einen Report basierend auf einem SQL-Statement
+	 * Creates a report based on a SQL-Statement
 	 * @param statement
 	 * @return
 	 */
@@ -52,7 +53,7 @@ public class ReportEngine {
 	}
 	
 	/**
-	 * Erstellt einen Report basierend auf einem SQL-Statement und mit einem Excel Template
+	 * Creates a report based on a SQL-Statement and a template will be used.
 	 * @param statement
 	 * @param template
 	 * @return
@@ -62,7 +63,7 @@ public class ReportEngine {
 	}
 	
 	/**
-	 * Erstellt einen Report, der auf einer Pipelined Function basiert
+	 * Creates a report based on a pipelined function
 	 * @param methodName
 	 * @param arguments
 	 * @return
@@ -72,7 +73,7 @@ public class ReportEngine {
 	}
 	
 	/**
-	 * Erstellt einen Report, der auf einer Pipelined Function basiert mit einem Excel Template
+	 * Creates a report based on a pipelined function and a template will be used.
 	 * @param methodName
 	 * @param template
 	 * @param arguments

@@ -36,6 +36,9 @@ import java.sql.Statement;
 import java.util.Iterator;
 
 /**
+ * This is a helper class that iterates a given result set and
+ * dynamically retrieves the parameters of a {@link CellDefinition}<br>
+ * It is only used internally.
  * @author Michael J. Simons, 2013-06-18
  */
 class ReportSourceIterator implements Iterator<CellDefinition> {			
@@ -81,21 +84,21 @@ class ReportSourceIterator implements Iterator<CellDefinition> {
 	}		
 	
 	/**
-	 * Extrahiert den Wert vom Typ <code>typeClazz</code> aus dem 
-	 * <code>resultSet</code> für die Spalte <code>columnName</code><br>
-	 * Es wird davon ausgegangen, dass für typeClazz nur Werte benutzt werden,
-	 * die als getXXX Methode in {@link ResultSet} vorhanden sind.
-	 * 
+	 * Extracts the value with the type <code>typeClazz</code> from the
+	 * given <code>resultSet</code>.<br>
+	 * It is assumed here that only typeClazz represents only public getXXX 
+	 * methods from {@link ResultSet} 
+	 *  
 	 * @param typeClazz
 	 * @param columnName
 	 * @return
 	 */
-	public <T> T get(final Class<T> typeClazz, String columnName) {
+	private <T> T get(final Class<T> typeClazz, String columnName) {
 		try {
 			final String typeName = typeClazz.getSimpleName();
 			final Method m = this.clazz.getMethod(String.format("get%s%s", Character.toUpperCase(typeName.charAt(0)), typeName.substring(1)), String.class);
-			// Oracle hat oracle.jdbc.driver.* deprecated, gibt aber immer noch Klassen innerhalb dieses Packages 
-			// zurück. Die Methoden sind leider als inAccessible deklariert.
+			// Oracle has deprecated access to classes and methods inside oracle.jdbc.driver.*
+			// and marked methods as inAccessible but the connection returns a ResultSet inside that package			
 			m.setAccessible(true);			
 			return (T) m.invoke(this.resultSet, columnName);
 		} catch (NoSuchMethodException e) {

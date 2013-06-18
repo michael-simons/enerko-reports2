@@ -7,9 +7,16 @@ package de.enerko.reports2;
 public final class Unchecker {
 	private Unchecker(){}
 
-	// Now this returns an exception, so that you can satisfy the compiler by throwing it.
-	// But in reality we throw the given exception!
+	/**
+	 * Unchecks  the {@link Throwable} ex and turns it into a {@link RuntimeException}
+	 * without adding to the stacktrace
+	 * @param ex
+	 * @return
+	 */
 	public static RuntimeException uncheck(final Throwable ex){
+		// Now this returns an exception, so that you can satisfy the compiler by throwing it.
+		// But in reality we throw the given exception!
+		
 		// Now we use the 'generic' method. Normally the type T is inferred
 		// from the parameters. However you can specify the type also explicit!
 		// Now we du just that! We use the RuntimeException as type!

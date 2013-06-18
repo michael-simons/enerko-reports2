@@ -39,10 +39,13 @@ import oracle.jdbc.OracleConnection;
 import oracle.jdbc.OraclePreparedStatement;
 
 /**
- * Eine Hilfsklasse, die die Parameter von Oracle PL/SQL Methoden und Funktionen ermittelt
+ * This is a heloer class that retrives arguments vor PL/SQL procedures and functions
  * @author Michael J. Simons, 2013-06-17
  */
 public class ArgumentResolver {
+	/**
+	 * Thrown if a procedure or function is not found in global or package scope
+	 */
 	public static class MethodNotFoundException extends RuntimeException {
 		private static final long serialVersionUID = 1044851139822866147L;
 		
@@ -61,10 +64,10 @@ public class ArgumentResolver {
 	}
 	
 	/**
-	 * Ermittelt die Liste der Parameter einer Oracle PL/SQL Methode bzw. Funktion.
+	 * Determines the list of all arguments of a given Oracle PL/SQL procedure or function.
 	 * 
-	 * @param fqn Den vollständig qualifizierten Name der Methode oder Funktion, deren Parameter ermittelt werden sollen 
-	 * @return List der Parameter wie in der Deklaration.
+	 * @param fqn The fully qualified name of a procedure or function 
+	 * @return a list of parameters (all real arguments, not the type of a function)
 	 */
 	public List<FormalArgument> getArguments(final String fqn) {
 		final List<FormalArgument> rv = new ArrayList<FormalArgument>();
@@ -82,6 +85,7 @@ public class ArgumentResolver {
 		OraclePreparedStatement statement = null;
 		ResultSet rs = null;
 		try {			
+			// check if the procedure or function exists
 			statement = (OraclePreparedStatement) this.connection.prepareStatement(
 					"Select count(*) as cnt " +
 					"  from user_procedures p " +
@@ -101,6 +105,7 @@ public class ArgumentResolver {
 			rs.close();
 			statement.close();
 			
+			// get arguments
 			statement = (OraclePreparedStatement) this.connection.prepareStatement(
 					"Select a.position as position, " + 
 					"       lower(a.argument_name) as argument_name, " + 
@@ -109,9 +114,9 @@ public class ArgumentResolver {
 				    "       decode(DEFAULTED, 'Y', 'true', 'false') as defaulted " +
 				    "  from user_arguments a " +
 				    "  join user_procedures p on (p.object_name = a.package_name and p.procedure_name = a.object_name or a.package_name IS NULL and p.object_name = a.object_name) " + 
-				    " where a.position > 0 " + // Der Rückgabewert interessiert uns nicht 
-				    "   and a.sequence >= 1 " + // ebensowenig der Prozedurnamen im Fall von 0 Parametern
-				    "   and a.argument_name is not null " + // Rückgabewert von Funktionen bzw. Elementtyp des Table Types von pipelined Functions
+				    " where a.position > 0 " + // don't retrieve the type of a function 
+				    "   and a.sequence >= 1 " + // and not it's name
+				    "   and a.argument_name is not null " + // don't retrive the type of a pipelined function
 				    "   and lower(nvl(a.package_name, '-')) = lower(nvl(:package_name, '-')) and lower(a.object_name) = lower(:procedure_name) " +
 				    " order by a.position asc"
 			);

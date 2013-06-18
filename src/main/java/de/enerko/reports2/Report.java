@@ -45,14 +45,12 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 /**
- * Implementierung der Reports auf Basis von HSSF.<br> 
- * Falls eine numerische, date oder datetime Zelle zu einer ParseException führt,
- * wird der ganze Report abgebrochen.<br>
- * Am Ende des Reports wird versucht, alle Funktionen zu evaluieren. Schlägt dies
- * fehl, so wird der Report trotzdem ausgegeben (Excel wertet in diesem Fall die Formeln 
- * aus)
+ * Implements a report on the basis of Apache HSSF.<br>
+ * If any numerical, date or datetime based cell leads to a {@link ParseException} or
+ * {@link NumberFormatException} the whole report is canceled.<br>
+ * At the end of the report all functions are evaluated. The report will be created
+ * nevertheless if evaluation fails (Excel will then evaluate the formulas).
  * @author Michael J. Simons, 2013-06-18
- *
  */
 public class Report {
 	public final static Map<String, SimpleDateFormat> DATE_FORMATS_SQL;
@@ -83,23 +81,24 @@ public class Report {
 			try {
 				this.workbook = new HSSFWorkbook(new BufferedInputStream(template));
 			} catch(IOException e) {
-				throw new RuntimeException("Konnte Template nicht laden!");
+				throw new RuntimeException("Could not load template for report!");
 			}
 	
 		String previousSheetName = null;
 		Sheet sheet = null;
-		// Ergebnis verarbeiten
+		// Iterator over all celldefinitions
 		for(CellDefinition cellDefinition : reportSource) {
-			// Zwischenspeichern des aktuellen Sheets, damit nicht 
-			// in jedem Loop ein getSheet durchgeführt wird			
+			// Create and cache the current sheet.			
 			if(previousSheetName == null || !previousSheetName.equals(cellDefinition.sheetname)) {
 				previousSheetName = cellDefinition.sheetname;
 				sheet = getSheet(workbook, cellDefinition.sheetname);					
 			}
 			
-			// Zelle erzeugen
+			// create, fill and add cell
 			this.addCell(workbook, sheet, cellDefinition);
 		}
+		
+		// Evaluate all formulas
 		try {
 			final FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
 			formulaEvaluator.clearAllCachedResultValues();
@@ -109,7 +108,7 @@ public class Report {
 	}
 	
 	/**
-	 * Schreibt den Report in den angegebenen OutputStream und flushed und schließt den Stream.
+	 * Writes the report into the given {@link OutputStream}, flushes and closes the stream.
 	 * @param out
 	 * @throws IOException
 	 */
@@ -120,11 +119,11 @@ public class Report {
 	}
 	
 	/**
-	 * Erzeugt neues Sheet, falls Sheet mit <code>name</code> nicht vorhanden,
-	 * ansonsten gibt es dieses zurück
+	 * Create a new {@link Sheet} if the sheet with the given name doesn't exist,
+	 * otherwise returns the existing sheet.
 	 * @param workbook
 	 * @param name
-	 * @return Sheet mit Namen <code>name</code>
+	 * @return Existing or newly created sheet
 	 */
 	private Sheet getSheet(final Workbook workbook, final String name) {
 		Sheet sheet = workbook.getSheet(name);
@@ -143,13 +142,13 @@ public class Report {
 			row = sheet.createRow(rowNum);
 		
 		Cell cell = row.getCell(columnNum);
-		// Falls die Zelle bereits existiert und keine leere Zelle ist,
-		// wird diese inklusive aller Formatierungen übernommen
+		// If the cell already exists and is no blank cell
+		// it will be used including all formating
 		if(cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
 			cell = fill(workbook, cell, type, cellDefinition.value, false);			
 		}
-		// Ansonsten wird eine neue Zelle aufgebaut, der Datentyp entsprechend
-		// gesetzt und im Falle von Zahlen und Datumsangaben eine Formatierung aufgebau
+		// Otherwise a new cell will be created, the datatype set and 
+		// optionally a format will be created
 		else {
 			cell = fill(workbook, row.createCell(columnNum), type, cellDefinition.value, true);
 			
