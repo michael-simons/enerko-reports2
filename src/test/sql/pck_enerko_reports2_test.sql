@@ -43,7 +43,7 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
 	        		0,
 	        		i,
 	        		'string',
-	        		'Row number ' || i
+	        		'Row number ' || i || ' ' || p_test_string
       			)
       		);
       	END LOOP;
