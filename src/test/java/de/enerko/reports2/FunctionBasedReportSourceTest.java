@@ -44,7 +44,7 @@ import de.enerko.reports2.FunctionBasedReportSource;
 public class FunctionBasedReportSourceTest extends AbstractDatabaseTest {
 	@Test
 	public void shouldHandlePipelinedFunction() throws SQLException {
-		final String methodName = "pck_hre_test.f_fb_report_source_test";
+		final String methodName = "pck_enerko_reports2_test.f_fb_report_source_test";
 		
 		final FunctionBasedReportSource reportSource = 
 				new FunctionBasedReportSource(connection,  methodName, "5", "1979-09-21", "test");
@@ -52,7 +52,5 @@ public class FunctionBasedReportSourceTest extends AbstractDatabaseTest {
 		while(reportSource.hasNext())
 			cellDefinitions.add(reportSource.next());
 		assertThat(cellDefinitions.size(), is(5));
-		
-		 
 	}
 }

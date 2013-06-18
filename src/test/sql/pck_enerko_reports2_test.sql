@@ -7,7 +7,7 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2_test AS
 	
 	PROCEDURE p_some_args (p_number IN NUMBER, p_date IN DATE, p_datetime IN TIMESTAMP, p_string IN  VARCHAR2);
 	
-	FUNCTION f_fb_report_source_test(num_rows NUMBER, p_test_date IN DATE, p_test_string IN VARCHAR2) RETURN table_of_hre_cell_definitions pipelined;
+	FUNCTION f_fb_report_source_test(num_rows NUMBER, p_test_date IN DATE, p_test_string IN VARCHAR2) RETURN table_of_er_cell_definitions pipelined;
 END;
 /
 
@@ -34,11 +34,11 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
 		null;
 	END p_some_args;
 	
-	FUNCTION f_fb_report_source_test(num_rows NUMBER, p_test_date IN DATE, p_test_string IN VARCHAR2) RETURN table_of_hre_cell_definitions pipelined IS
+	FUNCTION f_fb_report_source_test(num_rows NUMBER, p_test_date IN DATE, p_test_string IN VARCHAR2) RETURN table_of_er_cell_definitions pipelined IS
 	BEGIN
 		FOR i IN 0 .. (num_rows - 1) LOOP
     		pipe row(
-      			t_hre_cell_definition(
+      			t_er_cell_definition(
 	        		'f_fb_report_source_test',
 	        		0,
 	        		i,

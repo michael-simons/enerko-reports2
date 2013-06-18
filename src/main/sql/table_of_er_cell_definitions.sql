@@ -24,8 +24,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-BEGIN EXECUTE immediate 'DROP TYPE table_of_hre_cell_definitions FORCE'; EXCEPTION WHEN others THEN IF SQLCODE != -4043 THEN RAISE; END IF; END;
+BEGIN EXECUTE immediate 'DROP TYPE table_of_er_cell_definitions FORCE'; EXCEPTION WHEN others THEN IF SQLCODE != -4043 THEN RAISE; END IF; END;
 /
 
-CREATE TYPE table_of_hre_cell_definitions AS TABLE OF t_hre_cell_definition
+CREATE TYPE table_of_er_cell_definitions AS TABLE OF t_er_cell_definition
 /
