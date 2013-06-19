@@ -59,47 +59,28 @@ public class PckEnerkoReports2 {
 	public static BLOB createReportFromStatement(final String statement) throws SQLException, IOException {		
 		final Report report = reportEngine.createReportFromStatement(statement);
 		
-		final BLOB rv = BLOB.createTemporary(connection, true, BLOB.DURATION_SESSION);
-		final OutputStream out = new BufferedOutputStream(rv.setBinaryStream(0));
-		report.write(out);
-		
-		return rv;
+		return writeReportToBlob(report);
 	}
-	
+
 	public static BLOB createReportFromStatement(final String statement, final BLOB template) throws SQLException, IOException {
 		final Report report = reportEngine.createReportFromStatement(statement, template.getBinaryStream());
 		
-		final BLOB rv = BLOB.createTemporary(connection, true, BLOB.DURATION_SESSION);
-		final OutputStream out = new BufferedOutputStream(rv.setBinaryStream(0));
-		report.write(out);
-		
-		return rv;
+		return writeReportToBlob(report);
 	}
 	
 	public static BLOB createReport(final String methodName, final ARRAY arguments) throws SQLException, IOException {		
-		final String[] $arguments;
-		if(arguments == null)
-			$arguments = new String[0];
-		else {
-			$arguments = new String[arguments.length()];
-			final ResultSet hlp = arguments.getResultSet();
-			int i = 0;
-			while(hlp.next()) {
-				// The actual data resides at index 2
-				$arguments[i++] = hlp.getString(2);
-			}
-		}
+		final Report report = reportEngine.createReport(methodName, extractVargs(arguments));
 		
-		final Report report = reportEngine.createReport(methodName, $arguments);
-		
-		final BLOB rv = BLOB.createTemporary(connection, true, BLOB.DURATION_SESSION);
-		final OutputStream out = new BufferedOutputStream(rv.setBinaryStream(0));
-		report.write(out);
-		
-		return rv;
+		return writeReportToBlob(report);
 	}
 	
 	public static BLOB createReport(final String methodName, final BLOB template, final ARRAY arguments) throws SQLException, IOException {
+		final Report report = reportEngine.createReport(methodName, template.getBinaryStream(), extractVargs(arguments));
+		
+		return writeReportToBlob(report);
+	}
+
+	private static String[] extractVargs(final ARRAY arguments) throws SQLException {
 		final String[] $arguments;
 		if(arguments == null)
 			$arguments = new String[0];
@@ -112,13 +93,13 @@ public class PckEnerkoReports2 {
 				$arguments[i++] = hlp.getString(2);
 			}
 		}
-		
-		final Report report = reportEngine.createReport(methodName, template.getBinaryStream(), $arguments);
-		
+		return $arguments;
+	}
+	
+	private static BLOB writeReportToBlob(final Report report) throws SQLException, IOException {
 		final BLOB rv = BLOB.createTemporary(connection, true, BLOB.DURATION_SESSION);
 		final OutputStream out = new BufferedOutputStream(rv.setBinaryStream(0));
 		report.write(out);
-		
 		return rv;
 	}
 }
