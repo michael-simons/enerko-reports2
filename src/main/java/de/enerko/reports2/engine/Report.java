@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
@@ -70,11 +71,11 @@ public class Report {
 	
 	private final Workbook workbook;
 	
-	Report(final ReportSource reportSource) {
-		this(reportSource, null);
+	Report(final ReportSource reportSource, UDFFinder customFunctions) {
+		this(reportSource, customFunctions, null);
 	}
 	
-	Report(final ReportSource reportSource, final InputStream template) {
+	Report(final ReportSource reportSource, UDFFinder customFunctions, final InputStream template) {
 		if(template == null)
 			this.workbook = new HSSFWorkbook();
 		else
@@ -84,6 +85,9 @@ public class Report {
 				throw new RuntimeException("Could not load template for report!");
 			}
 	
+		if(customFunctions != null)
+			this.workbook.addToolPack(customFunctions);
+		
 		String previousSheetName = null;
 		Sheet sheet = null;
 		// Iterator over all celldefinitions

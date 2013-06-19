@@ -27,9 +27,18 @@
 package de.enerko.reports2.engine;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import oracle.jdbc.OracleConnection;
+
+import org.apache.poi.ss.formula.functions.FreeRefFunction;
+import org.apache.poi.ss.formula.udf.AggregatingUDFFinder;
+import org.apache.poi.ss.formula.udf.DefaultUDFFinder;
+import org.apache.poi.ss.formula.udf.UDFFinder;
+
+import de.enerko.reports2.functions.NormInv;
 
 /**
  * This is the main entry point for creating reports.
@@ -38,9 +47,16 @@ import oracle.jdbc.OracleConnection;
 public class ReportEngine {	
 	public final static Logger logger = Logger.getLogger(ReportEngine.class.getName());
 	private final OracleConnection connection;
+	private final Map<String, FreeRefFunction> customFunctions = new HashMap<String, FreeRefFunction>();
 	
 	public ReportEngine(OracleConnection connection) {
 		this.connection = connection;
+		this.addCustomFunction("Enerko_NormInv", new NormInv());
+	}
+	
+	public ReportEngine addCustomFunction(final String name, final FreeRefFunction freeRefFunction) {
+		this.customFunctions.put(name, freeRefFunction);
+		return this;
 	}
 	
 	/**
@@ -49,7 +65,7 @@ public class ReportEngine {
 	 * @return
 	 */
 	public Report createReportFromStatement(final String statement) {
-		return new Report(new StatementBasedReportSource(this.connection, statement));
+		return new Report(new StatementBasedReportSource(this.connection, statement), this.createCustomFunctions());
 	}
 	
 	/**
@@ -59,7 +75,7 @@ public class ReportEngine {
 	 * @return
 	 */
 	public Report createReportFromStatement(final String statement, final InputStream template) {
-		return new Report(new StatementBasedReportSource(this.connection, statement), template);		
+		return new Report(new StatementBasedReportSource(this.connection, statement), this.createCustomFunctions(), template);		
 	}
 	
 	/**
@@ -69,7 +85,7 @@ public class ReportEngine {
 	 * @return
 	 */
 	public Report createReport(final String methodName, final String... arguments) {
-		return new Report(new FunctionBasedReportSource(this.connection, methodName, arguments));	
+		return new Report(new FunctionBasedReportSource(this.connection, methodName, arguments), this.createCustomFunctions());	
 	}
 	
 	/**
@@ -80,6 +96,24 @@ public class ReportEngine {
 	 * @return
 	 */
 	public Report createReport(final String methodName, final InputStream template, final String... arguments) {		
-		return new Report(new FunctionBasedReportSource(this.connection, methodName, arguments), template);	
+		return new Report(new FunctionBasedReportSource(this.connection, methodName, arguments), this.createCustomFunctions(), template);	
+	}
+	
+	private UDFFinder createCustomFunctions() {
+		UDFFinder rv = null;
+		
+		if(this.customFunctions.size() > 0) {
+			String[] names = new String[this.customFunctions.size()];
+			FreeRefFunction[] implementations = new FreeRefFunction[this.customFunctions.size()];
+			int i=0;
+			for(Map.Entry<String, FreeRefFunction> entry : this.customFunctions.entrySet()) {
+				names[i] = entry.getKey();
+				implementations[i] = entry.getValue();
+				++i;
+			}
+			rv = new AggregatingUDFFinder(new DefaultUDFFinder(names, implementations));
+		}
+		
+		return rv;
 	}
 }
