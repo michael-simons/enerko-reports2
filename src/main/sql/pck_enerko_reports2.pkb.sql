@@ -28,10 +28,8 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
     FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2) RETURN BLOB IS LANGUAGE JAVA
         NAME 'de.enerko.reports2.PckEnerkoReports2.createReportFromStatement(java.lang.String) return oracle.sql.BLOB';
 
-    FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN BLOB IS
-    BEGIN
-        RETURN NULL;
-    END;
+    FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN BLOB IS LANGUAGE JAVA
+        NAME 'de.enerko.reports2.PckEnerkoReports2.createReportFromStatement(java.lang.String, oracle.sql.BLOB) return oracle.sql.BLOB';
     
     FUNCTION f_create_report(p_method_name IN VARCHAR2, p_args IN t_vargs DEFAULT NULL) RETURN BLOB IS
     BEGIN
@@ -64,5 +62,24 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
       -- Close the file.
       UTL_FILE.fclose(v_file);
     END p_blob_to_file;
+    
+    FUNCTION f_file_to_blob(p_directory_name IN VARCHAR2, p_filename IN VARCHAR2) RETURN BLOB IS
+        v_file BFILE;
+        v_blob BLOB;
+        v_dest_offset INTEGER := 1;
+        v_src_offset INTEGER :=1;
+    BEGIN
+        v_file := BFILENAME(upper(p_directory_name), p_filename);
+        
+        -- Create temporary blob
+    	DBMS_LOB.createtemporary(v_blob, true, DBMS_LOB.SESSION);
+        
+        -- Read file into blob
+        DBMS_LOB.fileopen(v_file, dbms_lob.file_readonly);
+        DBMS_LOB.loadblobfromfile(v_blob, v_file, DBMS_LOB.LOBMAXSIZE, v_dest_offset, v_src_offset);
+        DBMS_LOB.fileclose(v_file);
+        
+        RETURN v_blob;
+    END f_file_to_blob;
 END pck_enerko_reports2;
 /

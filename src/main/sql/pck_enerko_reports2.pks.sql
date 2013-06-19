@@ -51,6 +51,15 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2 IS
      */    
     FUNCTION f_create_report(p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs DEFAULT NULL) RETURN BLOB;
     
+    /**
+     * Stores the blob p_blob into the file named p_filename inside the Oracle directory p_directory_name
+     * The use must have write permissions for that directory
+     */
     PROCEDURE p_blob_to_file(p_blob IN BLOB, p_directory_name IN VARCHAR2, p_filename IN VARCHAR2);
+    
+    /**
+     * Reads the file p_filename inside the Oracle directory p_directory_name into a temporary blob
+     */
+    FUNCTION f_file_to_blob(p_directory_name IN VARCHAR2, p_filename IN VARCHAR2) RETURN BLOB;
 END pck_enerko_reports2;
 /

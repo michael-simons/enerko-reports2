@@ -54,9 +54,18 @@ public class PckEnerkoReports2 {
 		}		
 	}
 	
-	public static BLOB createReportFromStatement(final String statement) throws SQLException, IOException {
-		
+	public static BLOB createReportFromStatement(final String statement) throws SQLException, IOException {		
 		final Report report = reportEngine.createReportFromStatement(statement);
+		
+		final BLOB rv = BLOB.createTemporary(connection, true, BLOB.DURATION_SESSION);
+		final OutputStream out = new BufferedOutputStream(rv.setBinaryStream(0));
+		report.write(out);
+		
+		return rv;
+	}
+	
+	public static BLOB createReportFromStatement(final String statement, final BLOB template) throws SQLException, IOException {
+		final Report report = reportEngine.createReportFromStatement(statement, template.getBinaryStream());
 		
 		final BLOB rv = BLOB.createTemporary(connection, true, BLOB.DURATION_SESSION);
 		final OutputStream out = new BufferedOutputStream(rv.setBinaryStream(0));
