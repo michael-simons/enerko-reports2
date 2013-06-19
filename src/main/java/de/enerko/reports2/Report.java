@@ -87,6 +87,8 @@ public class Report {
 		String previousSheetName = null;
 		Sheet sheet = null;
 		// Iterator over all celldefinitions
+		// this doesn't compile inside Oracle Database VM. You need to import the compiled classes
+		// or use reportSource.iterator() directly
 		for(CellDefinition cellDefinition : reportSource) {
 			// Create and cache the current sheet.			
 			if(previousSheetName == null || !previousSheetName.equals(cellDefinition.sheetname)) {
