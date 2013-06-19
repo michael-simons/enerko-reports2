@@ -64,7 +64,7 @@ public class ReportEngineTest extends AbstractDatabaseTest {
 	}
 	
 	@Test
-	public void shouldHandleTempaltes() throws IOException {
+	public void shouldHandleTemplates() throws IOException {
 		final ReportEngine reportEngine = new ReportEngine(connection);
 		
 		final InputStream template = this.getClass().getResource("/template1.xls").openStream();
