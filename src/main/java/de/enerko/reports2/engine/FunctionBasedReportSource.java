@@ -24,7 +24,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.reports2;
+package de.enerko.reports2.engine;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -32,7 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import oracle.jdbc.OracleConnection;
-import de.enerko.reports2.FormalArgument.DataType;
+import de.enerko.reports2.engine.FormalArgument.DataType;
+import de.enerko.reports2.utils.Unchecker;
 
 /**
  * This report source represents a call of a pipellined function

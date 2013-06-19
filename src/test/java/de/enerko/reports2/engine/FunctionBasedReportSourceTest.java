@@ -24,32 +24,34 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.reports2;
+package de.enerko.reports2.engine;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 
-import oracle.jdbc.OracleConnection;
+import org.junit.Test;
+
+import de.enerko.reports2.AbstractDatabaseTest;
+import de.enerko.reports2.engine.CellDefinition;
+import de.enerko.reports2.engine.FunctionBasedReportSource;
 
 /**
- * This report source represents the result set auf a SQL Statement.
- * It validates the statement and checks all necessary columns.
  * @author Michael J. Simons, 2013-06-18
  */
-public class StatementBasedReportSource implements ReportSource {
-	private final OracleConnection connection;
-	private final String sqlStatement;
-
-	public StatementBasedReportSource(OracleConnection connection, String sqlStatement) {
-		this.connection = connection;
-		this.sqlStatement = sqlStatement;		
-	}
-
-	public Iterator<CellDefinition> iterator() {		
-		try {			
-			return new ReportSourceIterator(this.connection.createStatement().executeQuery(this.sqlStatement));
-		} catch (SQLException e) {
-			throw Unchecker.uncheck(e);
-		}
+public class FunctionBasedReportSourceTest extends AbstractDatabaseTest {
+	@Test
+	public void shouldHandlePipelinedFunction() throws SQLException {
+		final String methodName = "pck_enerko_reports2_test.f_fb_report_source_test";
+		
+		final FunctionBasedReportSource reportSource = 
+				new FunctionBasedReportSource(connection,  methodName, "5", "21.09.1979", "test");
+		final List<CellDefinition> cellDefinitions = new ArrayList<CellDefinition>();
+		for(CellDefinition cellDefinition : reportSource)
+			cellDefinitions.add(cellDefinition);
+		assertThat(cellDefinitions.size(), is(5));
 	}
 }

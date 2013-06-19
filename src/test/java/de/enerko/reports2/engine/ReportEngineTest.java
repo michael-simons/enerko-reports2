@@ -24,7 +24,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.reports2;
+package de.enerko.reports2.engine;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -34,6 +34,10 @@ import java.io.InputStream;
 import java.util.logging.Level;
 
 import org.junit.Test;
+
+import de.enerko.reports2.AbstractDatabaseTest;
+import de.enerko.reports2.engine.Report;
+import de.enerko.reports2.engine.ReportEngine;
 
 /**
  * @author Michael J. Simons, 2013-06-18

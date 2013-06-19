@@ -26,7 +26,7 @@
  */
 package de.enerko.reports2;
 
-import static de.enerko.reports2.Unchecker.uncheck;
+import static de.enerko.reports2.utils.Unchecker.uncheck;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -34,6 +34,9 @@ import java.io.OutputStream;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import de.enerko.reports2.engine.Report;
+import de.enerko.reports2.engine.ReportEngine;
 
 import oracle.jdbc.OracleConnection;
 import oracle.sql.ARRAY;

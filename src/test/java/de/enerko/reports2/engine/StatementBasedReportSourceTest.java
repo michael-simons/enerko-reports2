@@ -24,7 +24,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.reports2;
+package de.enerko.reports2.engine;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -35,7 +35,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import de.enerko.reports2.ReportSource.MissingReportColumn;
+import de.enerko.reports2.AbstractDatabaseTest;
+import de.enerko.reports2.engine.CellDefinition;
+import de.enerko.reports2.engine.StatementBasedReportSource;
+import de.enerko.reports2.engine.ReportSource.MissingReportColumn;
 
 /**
  * @author Michael J. Simons, 2013-06-18

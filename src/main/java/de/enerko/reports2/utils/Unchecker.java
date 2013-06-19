@@ -1,4 +1,4 @@
-package de.enerko.reports2;
+package de.enerko.reports2.utils;
 
 /**
  * @author Michael J. Simons, 2012-02-03

@@ -24,9 +24,9 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.enerko.reports2;
+package de.enerko.reports2.engine;
 
-import static de.enerko.reports2.Unchecker.uncheck;
+import static de.enerko.reports2.utils.Unchecker.uncheck;
 
 import java.math.BigDecimal;
 import java.sql.Date;
