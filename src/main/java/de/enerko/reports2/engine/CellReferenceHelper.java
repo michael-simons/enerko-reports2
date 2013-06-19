@@ -41,6 +41,69 @@ public final class CellReferenceHelper
 	private static final char sheetInd = '!';
 
 	/**
+	 * Gets the column letter corresponding to the 0-based column number
+	 * 
+	 * @param column the column number
+	 * @param buf the string buffer in which to write the column letter
+	 */
+	public static void getColumnReference(int column, StringBuffer buf)
+	{
+		int v = column/26;
+		int r = column%26;
+
+		StringBuffer tmp = new StringBuffer();
+		while (v != 0)
+		{
+			char col = (char) ('A' +  r) ;
+
+			tmp.append(col);
+
+			r = v%26 - 1; // subtract one because only rows >26 preceded by A
+			v = v/26;
+		}
+
+		char col = (char) ('A' +  r) ;
+		tmp.append(col);
+
+		// Insert into the proper string buffer in reverse order
+		for (int i = tmp.length() - 1; i >= 0; i--)
+		{
+			buf.append(tmp.charAt(i));
+		}
+	}
+
+	/**
+	 * Gets the cell reference 
+	 *
+	 * @param column
+	 * @param row
+	 * @param buf
+	 */
+	public static void getCellReference(int column, int row, StringBuffer buf)
+	{
+		// Put the column letter into the buffer
+		getColumnReference(column, buf);
+
+		// Add the row into the buffer
+		buf.append(Integer.toString(row+1));
+	}
+
+	/**
+	 * Gets the cell reference for the specified column and row
+	 *
+	 * @param column
+	 * @param row
+	 * @return
+	 */
+	public static String getCellReference(int column, int row)
+	{
+		StringBuffer buf = new StringBuffer();
+		getCellReference(column, row, buf);
+		return buf.toString();
+	}
+
+
+	/**
 	 * Gets the columnn number of the string cell reference
 	 *
 	 * @param s the string to parse
