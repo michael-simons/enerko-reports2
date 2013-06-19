@@ -31,10 +31,8 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
     FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN BLOB IS LANGUAGE JAVA
         NAME 'de.enerko.reports2.PckEnerkoReports2.createReportFromStatement(java.lang.String, oracle.sql.BLOB) return oracle.sql.BLOB';
     
-    FUNCTION f_create_report(p_method_name IN VARCHAR2, p_args IN t_vargs DEFAULT NULL) RETURN BLOB IS
-    BEGIN
-        RETURN NULL;
-    END;
+    FUNCTION f_create_report(p_method_name IN VARCHAR2, p_args IN t_vargs) RETURN BLOB IS LANGUAGE JAVA
+        NAME 'de.enerko.reports2.PckEnerkoReports2.createReport(java.lang.String, oracle.sql.ARRAY) return oracle.sql.BLOB';
    
     FUNCTION f_create_report(p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs DEFAULT NULL) RETURN BLOB IS
     BEGIN

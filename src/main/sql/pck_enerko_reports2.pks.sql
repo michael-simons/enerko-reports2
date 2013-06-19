@@ -42,7 +42,7 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2 IS
      * Creates an Excel workbook by calling the given pipelined function. All strings in p_args
      * are converted to the appropriate type and passed as parameters to the method.
      */
-    FUNCTION f_create_report(p_method_name IN VARCHAR2, p_args IN t_vargs DEFAULT NULL) RETURN BLOB;
+    FUNCTION f_create_report(p_method_name IN VARCHAR2, p_args IN t_vargs) RETURN BLOB;
 
     /**
      * Creates an Excel workbook by calling the given pipelined function. All strings in p_args

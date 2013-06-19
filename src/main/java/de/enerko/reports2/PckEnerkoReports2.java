@@ -32,9 +32,11 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import oracle.jdbc.OracleConnection;
+import oracle.sql.ARRAY;
 import oracle.sql.BLOB;
 
 /**
@@ -66,6 +68,29 @@ public class PckEnerkoReports2 {
 	
 	public static BLOB createReportFromStatement(final String statement, final BLOB template) throws SQLException, IOException {
 		final Report report = reportEngine.createReportFromStatement(statement, template.getBinaryStream());
+		
+		final BLOB rv = BLOB.createTemporary(connection, true, BLOB.DURATION_SESSION);
+		final OutputStream out = new BufferedOutputStream(rv.setBinaryStream(0));
+		report.write(out);
+		
+		return rv;
+	}
+	
+	public static BLOB createReport(final String methodName, final ARRAY arguments) throws SQLException, IOException {		
+		final String[] $arguments;
+		if(arguments == null)
+			$arguments = new String[0];
+		else {
+			$arguments = new String[arguments.length()];
+			final ResultSet hlp = arguments.getResultSet();
+			int i = 0;
+			while(hlp.next()) {
+				// The actual data resides at index 2
+				$arguments[i++] = hlp.getString(2);
+			}
+		}
+		
+		final Report report = reportEngine.createReport(methodName, $arguments);
 		
 		final BLOB rv = BLOB.createTemporary(connection, true, BLOB.DURATION_SESSION);
 		final OutputStream out = new BufferedOutputStream(rv.setBinaryStream(0));
