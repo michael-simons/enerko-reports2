@@ -55,7 +55,7 @@ public class ReportEngine {
 	/**
 	 * Creates a report based on a SQL-Statement and a template will be used.
 	 * @param statement
-	 * @param template
+	 * @param template Input stream for a template. It will automatically be buffered.
 	 * @return
 	 */
 	public Report createReportFromStatement(final String statement, final InputStream template) {
@@ -75,7 +75,7 @@ public class ReportEngine {
 	/**
 	 * Creates a report based on a pipelined function and a template will be used.
 	 * @param methodName
-	 * @param template
+	 * @param template Input stream for a template. It will automatically be buffered.
 	 * @param arguments
 	 * @return
 	 */
