@@ -17,7 +17,7 @@ public class ReportEngineTest extends AbstractDatabaseTest {
 	public void shouldHandleValidStatements() throws IOException {
 		final ReportEngine reportEngine = new ReportEngine(connection);
 		
-		final Report report = reportEngine.createReport("Select 's1' as sheetname, 1 as cell_column, 1 as cell_row, 'c1' as cell_name, 'string' as cell_type, 'cv' as cell_value from dual");
+		final Report report = reportEngine.createReportFromStatement("Select 's1' as sheetname, 1 as cell_column, 1 as cell_row, 'c1' as cell_name, 'string' as cell_type, 'cv' as cell_value from dual");
 		
 		File outFile = File.createTempFile(ReportEngineTest.class.getSimpleName() + "-", ".xls");
 		report.write(new BufferedOutputStream(new FileOutputStream(outFile)));
@@ -55,7 +55,7 @@ public class ReportEngineTest extends AbstractDatabaseTest {
 	public void displayAllFeatures() throws IOException {
 		final ReportEngine reportEngine = new ReportEngine(connection);
 				
-		final Report report = reportEngine.createReport("pck_enerko_reports2_test.f_all_features", this.getClass().getResource("/template2.xls").openStream(), new String[0]);
+		final Report report = reportEngine.createReport("pck_enerko_reports2_test.f_all_features", this.getClass().getResource("/template2.xls").openStream());
 		
 		File outFile = File.createTempFile(ReportEngineTest.class.getSimpleName() + "-", ".xls");		
 		report.write(new BufferedOutputStream(new FileOutputStream(outFile)));

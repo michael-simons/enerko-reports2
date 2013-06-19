@@ -48,7 +48,7 @@ public class ReportEngine {
 	 * @param statement
 	 * @return
 	 */
-	public Report createReport(final String statement) {
+	public Report createReportFromStatement(final String statement) {
 		return new Report(new StatementBasedReportSource(this.connection, statement));
 	}
 	
@@ -58,7 +58,7 @@ public class ReportEngine {
 	 * @param template
 	 * @return
 	 */
-	public Report createReport(final String statement, final InputStream template) {
+	public Report createReportFromStatement(final String statement, final InputStream template) {
 		return new Report(new StatementBasedReportSource(this.connection, statement), template);		
 	}
 	
