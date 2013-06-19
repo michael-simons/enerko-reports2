@@ -28,8 +28,6 @@ package de.enerko.reports2;
 
 import static de.enerko.reports2.Unchecker.uncheck;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -43,11 +41,9 @@ import java.util.Iterator;
  */
 class ReportSourceIterator implements Iterator<CellDefinition> {			
 	private final ResultSet resultSet;
-	private final Class<ResultSet> clazz;	
-	
+		
 	public ReportSourceIterator(final ResultSet resultSet) {
-		this.resultSet = resultSet;		
-		this.clazz = (Class<ResultSet>) this.resultSet.getClass();
+		this.resultSet = resultSet;			
 	}
 
 	public boolean hasNext() {
@@ -94,30 +90,21 @@ class ReportSourceIterator implements Iterator<CellDefinition> {
 	 * @return
 	 */
 	private <T> T get(final Class<T> typeClazz, String columnName) {
-		try {
-			final String typeName = typeClazz.getSimpleName();
-			final Method m = this.clazz.getMethod(String.format("get%s%s", Character.toUpperCase(typeName.charAt(0)), typeName.substring(1)), String.class);
-			// Oracle has deprecated access to classes and methods inside oracle.jdbc.driver.*
-			// and marked methods as inAccessible but the connection returns a ResultSet inside that package			
-			m.setAccessible(true);			
-			return (T) m.invoke(this.resultSet, columnName);
-		} catch (NoSuchMethodException e) {
-			throw uncheck(e);
-		} catch (SecurityException e) {
-			throw uncheck(e);
-		} catch (IllegalAccessException e) {
-			throw uncheck(e);
-		} catch (IllegalArgumentException e) {
-			throw uncheck(e);
-		} catch (InvocationTargetException e) {
-			if(e.getCause() instanceof SQLException) {
-				final SQLException cause = (SQLException) e.getCause();
-				if(cause.getErrorCode() == 17006)
-					throw new ReportSource.MissingReportColumn(columnName);
-				else 
-					throw uncheck(cause);	
-			} else
-				throw uncheck(e.getCause());
+		T rv = null;
+		try {			
+			final String typeName = typeClazz.getSimpleName();			
+			if("String".equals(typeName))
+				rv = (T) this.resultSet.getString(columnName);
+			else if("int".equals(typeName))
+				rv = (T)((Integer)this.resultSet.getInt(columnName));
+			else 
+				throw new RuntimeException(String.format("Unsupported type %s", typeClazz.getName()));			
+		} catch (SQLException e) {			
+			if(e.getErrorCode() == 17006)
+				throw new ReportSource.MissingReportColumn(columnName);
+			else 
+				throw uncheck(e);	
 		}
+		return rv;
 	}
 }
