@@ -30,13 +30,20 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
 
+import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.formula.IStabilityClassifier;
 import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -56,7 +63,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 public class Report {
 	public final static Map<String, SimpleDateFormat> DATE_FORMATS_SQL;
 	public final static Map<String, String> DATE_FORMATS_EXCEL;
-
+	public final static Map<Integer, String> IMPORTABLE_CELL_TYPES;
+	public final static DateFormat DATEFORMAT_OUT = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMAN);
+	
 	static {
 		final HashMap<String, SimpleDateFormat> dateFormatsSqlTmp = new HashMap<String, SimpleDateFormat>();
 		dateFormatsSqlTmp.put("date", ConcreteArgument.dateFormat);
@@ -67,6 +76,12 @@ public class Report {
 		dateFormatsExcel.put("date",    "dd/mm/yyyy");
 		dateFormatsExcel.put("datetime", "dd/mm/yyyy HH:mm");			
 		DATE_FORMATS_EXCEL = Collections.unmodifiableMap(dateFormatsExcel);
+		
+		final HashMap<Integer, String> importableCellTypes = new HashMap<Integer, String>();
+		importableCellTypes.put(new Integer(Cell.CELL_TYPE_STRING)  , "string");
+		importableCellTypes.put(new Integer(Cell.CELL_TYPE_NUMERIC) , "number");
+		importableCellTypes.put(new Integer(Cell.CELL_TYPE_FORMULA) , "number");	
+		IMPORTABLE_CELL_TYPES = Collections.unmodifiableMap(importableCellTypes);
 	}
 	
 	private final Workbook workbook;
@@ -113,6 +128,16 @@ public class Report {
 		}
 	}
 	
+	Report(final InputStream workbook, UDFFinder customFunctions) {
+		try {
+			this.workbook = new HSSFWorkbook(new BufferedInputStream(workbook));
+		} catch(IOException e) {
+			throw new RuntimeException("Could not load template for report!");
+		}
+		if(customFunctions != null)
+			this.workbook.addToolPack(customFunctions);
+	}
+	
 	/**
 	 * Writes the report into the given {@link OutputStream}, flushes and closes the stream.
 	 * @param out
@@ -122,6 +147,43 @@ public class Report {
 		this.workbook.write(out);
 		out.flush();
 		out.close();
+	}
+	
+	public List<CellDefinition> evaluateWorkbook() {
+		final List<CellDefinition> rv = new ArrayList<CellDefinition>();
+		
+		boolean reevaluate = false;
+		if(workbook instanceof HSSFWorkbook) {
+			try {
+				workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
+			} catch(Exception e) {
+				reevaluate = true;
+			}
+		}
+		
+		final FormulaEvaluator formulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook) workbook, IStabilityClassifier.TOTALLY_IMMUTABLE);
+		formulaEvaluator.clearAllCachedResultValues();
+						
+		for(int i=0; i<workbook.getNumberOfSheets(); ++i) {			
+			final Sheet sheet = workbook.getSheetAt(i);			
+			for(Row row : sheet) {				
+				for(Cell cell : row) {				
+					if(reevaluate && cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+						try {							
+							formulaEvaluator.evaluateFormulaCell(cell);
+						} catch(Exception e) {
+							ReportEngine.logger.log(Level.WARNING, String.format("Could not evaluate formula '%s' in cell %s on sheet '%s': %s", cell.getCellFormula(),  CellReferenceHelper.getCellReference(cell.getColumnIndex(), row.getRowNum()), sheet.getSheetName(), e.getMessage()));
+						}		
+					}
+										
+					final CellDefinition cellDefinition = IMPORTABLE_CELL_TYPES.containsKey(new Integer(cell.getCellType())) ? new CellDefinition(sheet.getSheetName(), cell) : null;
+					if(cellDefinition != null)
+						rv.add(cellDefinition);
+				}
+			}			
+		}
+		
+		return rv;
 	}
 	
 	/**

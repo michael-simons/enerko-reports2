@@ -99,6 +99,10 @@ public class ReportEngine {
 		return new Report(new FunctionBasedReportSource(this.connection, methodName, arguments), this.createCustomFunctions(), template);	
 	}
 	
+	public Report createReport(final InputStream workbook) {
+		return new Report(workbook, this.createCustomFunctions());
+	}
+	
 	private UDFFinder createCustomFunctions() {
 		UDFFinder rv = null;
 		

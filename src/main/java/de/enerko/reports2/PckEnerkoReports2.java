@@ -34,13 +34,17 @@ import java.io.OutputStream;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import de.enerko.reports2.engine.Report;
-import de.enerko.reports2.engine.ReportEngine;
+import java.util.List;
 
 import oracle.jdbc.OracleConnection;
 import oracle.sql.ARRAY;
+import oracle.sql.ArrayDescriptor;
 import oracle.sql.BLOB;
+import oracle.sql.STRUCT;
+import oracle.sql.StructDescriptor;
+import de.enerko.reports2.engine.CellDefinition;
+import de.enerko.reports2.engine.Report;
+import de.enerko.reports2.engine.ReportEngine;
 
 /**
  * This is the main entry point for the PL/SQL package pck_enerko_reports2
@@ -82,6 +86,11 @@ public class PckEnerkoReports2 {
 		
 		return writeReportToBlob(report);
 	}
+		
+	public static void evaluateWorkbook(final BLOB in, final ARRAY[] result) throws Exception {
+		final Report report = reportEngine.createReport(in.getBinaryStream());
+		result[0] = convertListOfCellsToOracleArray(report.evaluateWorkbook());	
+	}
 
 	private static String[] extractVargs(final ARRAY arguments) throws SQLException {
 		final String[] $arguments;
@@ -105,4 +114,15 @@ public class PckEnerkoReports2 {
 		report.write(out);
 		return rv;
 	}
+	
+	private static ARRAY convertListOfCellsToOracleArray(final List<CellDefinition> cellDefinitions) throws SQLException {
+		final StructDescriptor resultStruct = StructDescriptor.createDescriptor("T_ER_CELL_DEFINITION", connection);
+		final ArrayDescriptor  arrayDesc = ArrayDescriptor.createDescriptor("TABLE_OF_ER_CELL_DEFINITIONS", connection);
+		
+		final STRUCT[] rv = new STRUCT[cellDefinitions.size()];						
+		int i=0;
+		for(CellDefinition cellDefinition : cellDefinitions)
+			rv[i++] = new STRUCT(resultStruct, connection, cellDefinition.toSQLStructObject());		
+		return new ARRAY(arrayDesc, connection, rv);
+	}	
 }

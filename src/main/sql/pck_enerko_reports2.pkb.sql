@@ -87,5 +87,26 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
         
         RETURN v_blob;
     END f_file_to_blob;
+    
+    PROCEDURE p_evaluate_workbook(p_workbook IN BLOB, p_result IN OUT table_of_er_cell_definitions) IS LANGUAGE JAVA
+        NAME 'de.enerko.reports2.PckEnerkoReports2.evaluateWorkbook(oracle.sql.BLOB, oracle.sql.ARRAY[])';
+        
+    FUNCTION f_evaluate_workbook(p_workbook IN BLOB) RETURN table_of_er_cell_definitions pipelined IS
+        v_results table_of_er_cell_definitions;
+        i         NUMBER;
+    BEGIN   
+        BEGIN      
+            p_evaluate_workbook(p_workbook, v_results);
+            i := v_results.FIRST;
+            WHILE i IS NOT NULL LOOP 
+                pipe row(v_results(i));
+                i := v_results.NEXT(i);
+            END LOOP;
+        EXCEPTION
+	        WHEN no_data_found THEN
+                null;	    
+        END;
+        RETURN;
+    END f_evaluate_workbook;
 END pck_enerko_reports2;
 /

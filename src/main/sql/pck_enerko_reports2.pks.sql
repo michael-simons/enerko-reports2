@@ -71,5 +71,9 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2 IS
      * Reads the file p_filename inside the Oracle directory p_directory_name into a temporary blob
      */
     FUNCTION f_file_to_blob(p_directory_name IN VARCHAR2, p_filename IN VARCHAR2) RETURN BLOB;
+
+    PROCEDURE p_evaluate_workbook(p_workbook IN BLOB, p_result IN OUT table_of_er_cell_definitions);
+    
+    FUNCTION f_evaluate_workbook(p_workbook IN BLOB) RETURN table_of_er_cell_definitions pipelined;
 END pck_enerko_reports2;
 /

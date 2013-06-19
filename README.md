@@ -185,7 +185,28 @@ Reports based on pipelined functions works also with templates:
 	END;
 	/
 	
-### API
+### Evaluate Excel files and reports
+
+ENERKOs Report Engine can evaluate Excel files and reports on-the-fly and present them as a virtual table in a from clause:
+
+#### Evaluate an Excel file
+
+This creates an Excel workbook and pushes it back to the Reports Engine for on-the-fly evaluation. It also demonstrates how an Excel sheet can be queried through SQL. Furthermore it shows our extension NormInv to Apache HSSF. NormInv is a statistical function available in Office 2003 but not in Apache HSSF (you see the log message that the engine couldn't evaluate NormInv (B7), but only Enerko_NormInv (C7)):
+
+	SET LINESIZE 300
+	SELECT substr(cell_name,1,2) as name, to_number(cell_value, '9999D999999999999999999',  'nls_numeric_characters=''.,''') as value
+	FROM table(
+		pck_enerko_reports2.f_evaluate_workbook(
+			pck_enerko_reports2.f_create_report(
+				'pck_enerko_reports2_test.f_all_features', 
+				pck_enerko_reports2.f_file_to_blob('enerko_reports', 'template2.xls')
+			)
+		)
+	) src 
+	WHERE sheetname = 'datatypes'
+	  AND cell_name IN ('B7', 'C7');
+	
+## API
 
 The main structure for creating reports is the cell definition t_er_cell_definition:
 

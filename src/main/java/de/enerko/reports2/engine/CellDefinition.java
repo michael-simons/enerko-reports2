@@ -26,8 +26,12 @@
  */
 package de.enerko.reports2.engine;
 
+import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.ss.usermodel.Cell;
 
 /**
  * Represents a worksheet cell and corresponds with the 
@@ -56,6 +60,16 @@ public class CellDefinition {
 		}					
 	}
 	
+	private static class CellValue {
+		public final String type;
+		public final String representation;
+				
+		public CellValue(String type, String representation) {
+			this.type = type;
+			this.representation = representation;
+		}		
+	}
+	
 	/** Pattern to split the {@link #type} into the actual type and a reference cell */
 	public final static Pattern FORMAT_PATTERN = Pattern.compile("(\\w+)(\\s*;\\s*\"([^\"]+)\"\\s*(\\w{1,3}\\d{1,}))?");
 	
@@ -81,6 +95,53 @@ public class CellDefinition {
 		this.value = value;
 	}	
 	
+	public CellDefinition(final String sheetname, final Cell cell) {
+		final int ct = cell.getCellType();
+	
+		Method m = null;
+		try {
+			m = this.getClass().getDeclaredMethod("parse_" + Report.IMPORTABLE_CELL_TYPES.get(new Integer(ct)), new Class[]{Cell.class});
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(m == null)
+				throw new RuntimeException("Invalid type " + ct);
+		}	
+		
+		try {
+			final CellValue cellValue =  (CellValue) m.invoke(this, new Object[]{cell});
+			this.sheetname = sheetname;
+			this.column = cell.getColumnIndex();
+			this.row = cell.getRowIndex();
+			this.name = CellReferenceHelper.getCellReference(cell.getColumnIndex(), cell.getRowIndex());
+			this.type = cellValue.type;
+			this.value = cellValue.representation;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} 			
+	}
+	
+	protected CellValue parse_string(Cell in) {			
+		return new CellValue("string", in.getStringCellValue());
+	}
+	
+	protected CellValue parse_number(Cell in) {
+		CellValue rv = null;
+
+		try {
+			if(HSSFDateUtil.isCellDateFormatted(in)) {
+				rv = new CellValue("datetime", Report.DATEFORMAT_OUT.format(in.getDateCellValue()));
+			} else {
+				rv = new CellValue("number", Double.toString(in.getNumericCellValue()));				
+			}
+		} catch(IllegalStateException e) {
+			// Siehe Dokumentation getNumericCellValue
+			rv = new CellValue("string", in.getStringCellValue());
+		}
+
+		return rv;
+	}
+	
 	public String getType() {
 		if(this.actualType == null)
 			this.computeActualTypeAndReferenceCell();	
@@ -103,5 +164,16 @@ public class CellDefinition {
 			throw new RuntimeException("Invalid type definition: " + type);
 		this.actualType = m.group(1);		
 		this.referenceCell = m.group(2) == null ? null :new CellPointer(m.group(3), CellReferenceHelper.getColumn(m.group(4)), CellReferenceHelper.getRow(m.group(4)));		
+	}
+	
+	public Object[] toSQLStructObject() {
+		return new Object[] {
+				this.sheetname,
+				this.column,
+				this.row,
+				this.name,
+				this.type,
+				this.value
+		};
 	}
 }

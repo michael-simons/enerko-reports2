@@ -27,10 +27,13 @@
 package de.enerko.reports2.engine;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.junit.Test;
@@ -91,5 +94,17 @@ public class ReportEngineTest extends AbstractDatabaseTest {
 		report.write(new BufferedOutputStream(new FileOutputStream(outFile)));
 		
 		ReportEngine.logger.log(Level.INFO, String.format("Report written to %s", outFile.getAbsolutePath()));		
+	}
+	
+	@Test
+	public void shouldEvaluateReport() throws IOException {
+		final ReportEngine reportEngine = new ReportEngine(connection);
+		
+		final Report report = reportEngine.createReport("pck_enerko_reports2_test.f_all_features", this.getClass().getResource("/template2.xls").openStream());
+		
+		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();			
+		report.write(new BufferedOutputStream(byteArrayOutputStream));
+		
+		final List<CellDefinition> cells = reportEngine.createReport(new ByteArrayInputStream(byteArrayOutputStream.toByteArray())).evaluateWorkbook();		
 	}
 }
