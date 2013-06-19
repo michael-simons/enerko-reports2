@@ -8,7 +8,7 @@
 	<name>ENERKOs Report Engine</name>
 
 	<prerequisites>
-		<maven>3.0.4</maven>
+		<maven>3.0.5</maven>
 	</prerequisites>
 
 	<organization>
