@@ -124,6 +124,17 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
         pipe row(t_er_cell_definition(
             'datatypes', 1, r, 'formula', 'SUM(1,2,3,4,5,6,7,8,9,10)'
         ));
+        
+        r:=r+1;
+        pipe row(t_er_cell_definition(
+            'datatypes', 0, r, 'string', 'custom function formula'
+        ));
+        pipe row(t_er_cell_definition(
+            'datatypes', 1, r, 'formula', 'NormInv(0.6, 100, 10)'
+        ));
+        pipe row(t_er_cell_definition(
+            'datatypes', 2, r, 'formula', 'Enerko_NormInv(0.6, 100, 10)'
+        ));
 		
         -- Formatvorlagen
         r:=1;
