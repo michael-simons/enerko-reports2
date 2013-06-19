@@ -31,13 +31,21 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
     FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN BLOB IS LANGUAGE JAVA
         NAME 'de.enerko.reports2.PckEnerkoReports2.createReportFromStatement(java.lang.String, oracle.sql.BLOB) return oracle.sql.BLOB';
     
+    FUNCTION f_create_report(p_method_name IN VARCHAR2) RETURN BLOB IS
+    BEGIN
+        RETURN f_create_report(p_method_name, p_args => null);
+    END f_create_report;
+    
     FUNCTION f_create_report(p_method_name IN VARCHAR2, p_args IN t_vargs) RETURN BLOB IS LANGUAGE JAVA
         NAME 'de.enerko.reports2.PckEnerkoReports2.createReport(java.lang.String, oracle.sql.ARRAY) return oracle.sql.BLOB';
-   
-    FUNCTION f_create_report(p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs DEFAULT NULL) RETURN BLOB IS
+
+    FUNCTION f_create_report(p_method_name IN VARCHAR2, p_template IN BLOB) RETURN BLOB IS
     BEGIN
-        RETURN NULL;
-    END;       
+        RETURN f_create_report(p_method_name, p_template, null);
+    END f_create_report;
+   
+    FUNCTION f_create_report(p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs) RETURN BLOB IS LANGUAGE JAVA
+        NAME 'de.enerko.reports2.PckEnerkoReports2.createReport(java.lang.String, oracle.sql.BLOB, oracle.sql.ARRAY) return oracle.sql.BLOB';
         
     PROCEDURE p_blob_to_file(p_blob IN BLOB, p_directory_name IN VARCHAR2, p_filename IN VARCHAR2) IS
       v_file      UTL_FILE.FILE_TYPE;

@@ -98,4 +98,27 @@ public class PckEnerkoReports2 {
 		
 		return rv;
 	}
+	
+	public static BLOB createReport(final String methodName, final BLOB template, final ARRAY arguments) throws SQLException, IOException {
+		final String[] $arguments;
+		if(arguments == null)
+			$arguments = new String[0];
+		else {
+			$arguments = new String[arguments.length()];
+			final ResultSet hlp = arguments.getResultSet();
+			int i = 0;
+			while(hlp.next()) {
+				// The actual data resides at index 2
+				$arguments[i++] = hlp.getString(2);
+			}
+		}
+		
+		final Report report = reportEngine.createReport(methodName, template.getBinaryStream(), $arguments);
+		
+		final BLOB rv = BLOB.createTemporary(connection, true, BLOB.DURATION_SESSION);
+		final OutputStream out = new BufferedOutputStream(rv.setBinaryStream(0));
+		report.write(out);
+		
+		return rv;
+	}
 }

@@ -37,6 +37,11 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2 IS
      * p_template is used for the resulting report.
      */
     FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN BLOB;
+
+    /**
+     * See f_create_report with vargs. Java stored procedure cannot have defaulted parameters
+     */
+    FUNCTION f_create_report(p_method_name IN VARCHAR2) RETURN BLOB;
     
     /**
      * Creates an Excel workbook by calling the given pipelined function. All strings in p_args
@@ -45,11 +50,16 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2 IS
     FUNCTION f_create_report(p_method_name IN VARCHAR2, p_args IN t_vargs) RETURN BLOB;
 
     /**
+     * See f_create_report with vargs. Java stored procedure cannot have defaulted parameters
+     */
+    FUNCTION f_create_report(p_method_name IN VARCHAR2, p_template IN BLOB) RETURN BLOB;
+
+    /**
      * Creates an Excel workbook by calling the given pipelined function. All strings in p_args
      * are converted to the appropriate type and passed as parameters to the method. The template 
      * p_template is used for the resulting report.
      */    
-    FUNCTION f_create_report(p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs DEFAULT NULL) RETURN BLOB;
+    FUNCTION f_create_report(p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs) RETURN BLOB;
     
     /**
      * Stores the blob p_blob into the file named p_filename inside the Oracle directory p_directory_name
