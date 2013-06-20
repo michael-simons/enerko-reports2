@@ -85,6 +85,11 @@ public class Report {
 	}
 	
 	private final Workbook workbook;
+	/** 
+	 * There is a maximum number of 4000 cell styles to HSSF. As each number gets formatted, this isn't much
+	 * so formatted cell styles are cached
+	 */
+	private final Map<String, CellStyle> formatCache = new HashMap<String, CellStyle>();
 	
 	Report(final ReportSource reportSource, UDFFinder customFunctions) {
 		this(reportSource, customFunctions, null);
@@ -237,10 +242,13 @@ public class Report {
 			final String[] hlp  = value.split("@@");
 			format = hlp.length > 1 ? hlp[1] : "0.00####";
 		}
+		CellStyle cellStyle = formatCache.get(format);
+		if(cellStyle == null) {
+			cellStyle = workbook.createCellStyle();
+			cellStyle.setDataFormat(workbook.createDataFormat().getFormat(format));
+			formatCache.put(format, cellStyle);
+		}
 		
-		final CellStyle cellStyle = workbook.createCellStyle();
-		cellStyle.cloneStyleFrom(cell.getCellStyle());
-		cellStyle.setDataFormat(workbook.createDataFormat().getFormat(format));
 		return cellStyle;		
 	}
 	
