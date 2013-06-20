@@ -29,7 +29,7 @@ ENERKOs Report Engine is used to create reports with over 50,000 cells, containi
 
 ## Requirements
 
-At least an Oracle Database 11g Release 11.1.0.6.0 standard edition. This library isn't portable to other databases and completely Oracle specific. It should probably work in Standard Edition One and Express Edition as well.
+At least an Oracle Database 11g Release 11.1.0.6.0 standard edition. This library isn't portable to other databases and completely Oracle specific. It should probably work in Standard Edition (One), but not in an Express Edition due the lack of an internal JVM.
 
 ## Installation
 
