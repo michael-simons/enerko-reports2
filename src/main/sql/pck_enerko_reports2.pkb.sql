@@ -25,6 +25,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
+    FUNCTION f_get_version RETURN VARCHAR2 IS LANGUAGE JAVA
+        NAME 'de.enerko.reports2.PckEnerkoReports2.getVersion() return java.lang.String';
+
+    FUNCTION f_get_java_version RETURN VARCHAR2 IS LANGUAGE JAVA
+        NAME 'de.enerko.reports2.PckEnerkoReports2.getJavaVersion() return java.lang.String';
+
     /**
      * private helper method to create and evaluate reports with all possible parameter combinations
      */

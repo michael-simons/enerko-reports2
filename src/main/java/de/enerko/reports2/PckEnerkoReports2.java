@@ -64,6 +64,14 @@ public class PckEnerkoReports2 {
 		}		
 	}
 	
+	public static String getVersion() {
+		return reportEngine.getVersion();
+	}
+	
+	public static String getJavaVersion() {
+		return System.getProperty("java.version");
+	}
+	
 	public static BLOB createReportFromStatement(final String statement) throws SQLException, IOException {		
 		final Report report = reportEngine.createReportFromStatement(statement);
 		

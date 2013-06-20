@@ -25,6 +25,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 CREATE OR REPLACE PACKAGE pck_enerko_reports2 IS
+    FUNCTION f_get_version RETURN VARCHAR2;
+    
+    FUNCTION f_get_java_version RETURN VARCHAR2;
+
     /**
      * Creates an Excel Workbook from the result of the statement given
      * through p_statement and returns the binary data

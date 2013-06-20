@@ -26,9 +26,12 @@
  */
 package de.enerko.reports2.engine;
 
+import static de.enerko.reports2.utils.Unchecker.uncheck;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import oracle.jdbc.OracleConnection;
@@ -48,10 +51,19 @@ public class ReportEngine {
 	public final static Logger logger = Logger.getLogger(ReportEngine.class.getName());
 	private final OracleConnection connection;
 	private final Map<String, FreeRefFunction> customFunctions = new HashMap<String, FreeRefFunction>();
+	private final String version;
 	
 	public ReportEngine(OracleConnection connection) {
 		this.connection = connection;
 		this.addCustomFunction("Enerko_NormInv", new NormInv());
+		try {
+			final Properties properties = new Properties();
+			properties.load(this.getClass().getResourceAsStream("/de/enerko/reports2/ReportEngine.properties"));
+			final String hlp = properties.getProperty("de.enerko.reports2.version");
+			this.version = "${pom.version}".equalsIgnoreCase(hlp.trim()) ?  "n/a" : hlp;
+		} catch(Exception e) {
+			throw uncheck(e);
+		}
 	}
 	
 	public ReportEngine addCustomFunction(final String name, final FreeRefFunction freeRefFunction) {
@@ -119,5 +131,9 @@ public class ReportEngine {
 		}
 		
 		return rv;
+	}
+
+	public String getVersion() {
+		return version;
 	}
 }
