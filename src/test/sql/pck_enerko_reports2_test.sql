@@ -100,6 +100,13 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
         pipe row(t_er_cell_definition(
             'datatypes', 3, r, 'number', '42.23@@#0.000'
         ));
+        -- Referenzzelle hat Vorrang
+        pipe row(t_er_cell_definition(
+            'datatypes', 4, r, 'string', 'Mit Formatierung + Referenzzelle'
+        ));
+        pipe row(t_er_cell_definition(
+            'datatypes', 5, r, 'number; "Formatvorlagen" A1', '42.23@@#0.000'
+        ));
 				
         r:=r+1;
         pipe row(t_er_cell_definition(
