@@ -215,6 +215,40 @@ It's certainly possible to evaluate random access files that are available as bl
 		)
 	) src;
 	
+#### Create and evaluate reports without storing them
+
+All examples above showing how to create and store reports as Excel files can be rewritten to evaluate them immediately:
+
+Evaluating a statement based report:
+
+	SELECT substr(cell_name,1,3) as name, substr(cell_value,1,16) as value
+	FROM table(
+		pck_enerko_reports2.f_eval_report_from_statement(
+			'Select ''f_fb_report_source_test'' as sheetname, 0 as cell_column, 0 as cell_row, null as cell_name, ''string'' as cell_type, ''Hello, World'' as cell_value from dual',
+			pck_enerko_reports2.f_file_to_blob('enerko_reports', 'template1.xls') -- <- can also be null
+		)
+	) src;
+
+and a function based report
+
+	SELECT substr(sheetname,1,20) as sheet, substr(cell_name,1,3) as name, substr(cell_value,1,16) as value
+	FROM table(
+		pck_enerko_reports2.f_eval_report(
+				'pck_enerko_reports2_test.f_fb_report_source_test',
+				pck_enerko_reports2.f_file_to_blob('enerko_reports', 'template1.xls'),
+				t_vargs('10', '21.09.1979', 'Some label')
+		)
+	) src;
+	
+	SELECT substr(sheetname,1,20) as sheet, substr(cell_name,1,3) as name, substr(cell_value,1,16) as value
+	FROM table(
+		pck_enerko_reports2.f_eval_report(
+				'pck_enerko_reports2_test.f_all_features',
+				pck_enerko_reports2.f_file_to_blob('enerko_reports', 'template2.xls'),
+				null
+		)
+	) src;
+	
 ## API
 
 The main structure for creating reports is the cell definition t_er_cell_definition:

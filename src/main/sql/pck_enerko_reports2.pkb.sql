@@ -25,11 +25,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
+    /**
+     * private helper method to create and evaluate reports with all possible parameter combinations
+     */
+    PROCEDURE p_create_and_evaluate_report(p_statement IN VARCHAR2, p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs, p_result IN OUT table_of_er_cell_definitions) IS LANGUAGE JAVA
+        NAME 'de.enerko.reports2.PckEnerkoReports2.createAndEvaluateReport(java.lang.String, java.lang.String, oracle.sql.BLOB, oracle.sql.ARRAY, oracle.sql.ARRAY[])';
+
+    /**
+     * private helper method to evaluate a workbook
+     */
+    PROCEDURE p_evaluate_workbook(p_workbook IN BLOB, p_result IN OUT table_of_er_cell_definitions) IS LANGUAGE JAVA
+        NAME 'de.enerko.reports2.PckEnerkoReports2.evaluateWorkbook(oracle.sql.BLOB, oracle.sql.ARRAY[])';
+
     FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2) RETURN BLOB IS LANGUAGE JAVA
         NAME 'de.enerko.reports2.PckEnerkoReports2.createReportFromStatement(java.lang.String) return oracle.sql.BLOB';
 
     FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN BLOB IS LANGUAGE JAVA
         NAME 'de.enerko.reports2.PckEnerkoReports2.createReportFromStatement(java.lang.String, oracle.sql.BLOB) return oracle.sql.BLOB';
+        
+    FUNCTION f_eval_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN table_of_er_cell_definitions pipelined IS
+        v_results table_of_er_cell_definitions;
+        i         NUMBER;
+    BEGIN   
+        BEGIN      
+            p_create_and_evaluate_report( p_statement, null,  p_template, null, p_result => v_results);
+            i := v_results.FIRST;
+            WHILE i IS NOT NULL LOOP 
+                pipe row(v_results(i));
+                i := v_results.NEXT(i);
+            END LOOP;
+        EXCEPTION
+        WHEN no_data_found THEN
+            null;	    
+        END;
+        RETURN;
+    END f_eval_report_from_statement;
     
     FUNCTION f_create_report(p_method_name IN VARCHAR2) RETURN BLOB IS
     BEGIN
@@ -46,6 +76,27 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
    
     FUNCTION f_create_report(p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs) RETURN BLOB IS LANGUAGE JAVA
         NAME 'de.enerko.reports2.PckEnerkoReports2.createReport(java.lang.String, oracle.sql.BLOB, oracle.sql.ARRAY) return oracle.sql.BLOB';
+        
+    FUNCTION f_eval_report(p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs) RETURN table_of_er_cell_definitions pipelined IS
+        v_results table_of_er_cell_definitions;
+        i         NUMBER;
+    BEGIN   
+        -- Copy / Paste code is inevitable at this place as a pipelined function cannot pipeline the
+        -- result of another pipelined function where i would refactor the loop into.
+        BEGIN      
+            p_create_and_evaluate_report(null, p_method_name,  p_template, p_args, p_result => v_results);
+            i := v_results.FIRST;
+            WHILE i IS NOT NULL LOOP 
+                pipe row(v_results(i));
+                i := v_results.NEXT(i);
+            END LOOP;
+        EXCEPTION
+        WHEN no_data_found THEN
+            null;	    
+        END;
+    RETURN;
+
+    END f_eval_report;
         
     PROCEDURE p_blob_to_file(p_blob IN BLOB, p_directory_name IN VARCHAR2, p_filename IN VARCHAR2) IS
       v_file      UTL_FILE.FILE_TYPE;
@@ -87,9 +138,6 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
         
         RETURN v_blob;
     END f_file_to_blob;
-    
-    PROCEDURE p_evaluate_workbook(p_workbook IN BLOB, p_result IN OUT table_of_er_cell_definitions) IS LANGUAGE JAVA
-        NAME 'de.enerko.reports2.PckEnerkoReports2.evaluateWorkbook(oracle.sql.BLOB, oracle.sql.ARRAY[])';
         
     FUNCTION f_evaluate_workbook(p_workbook IN BLOB) RETURN table_of_er_cell_definitions pipelined IS
         v_results table_of_er_cell_definitions;

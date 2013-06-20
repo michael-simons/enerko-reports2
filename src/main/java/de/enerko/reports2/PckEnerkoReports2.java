@@ -30,6 +30,7 @@ import static de.enerko.reports2.utils.Unchecker.uncheck;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -85,6 +86,24 @@ public class PckEnerkoReports2 {
 		final Report report = reportEngine.createReport(methodName, template.getBinaryStream(), extractVargs(arguments));
 		
 		return writeReportToBlob(report);
+	}
+	
+	public static void createAndEvaluateReport(final String statement, final String methodName, final BLOB template, final ARRAY arguments, final ARRAY[] result) throws SQLException, IOException {
+		final Report report;
+		boolean isStatementBased = statement != null && statement.trim().length() != 0;
+		boolean isFunctionBased = methodName != null && methodName.trim().length() != 0;
+		final InputStream $template = template == null ? null : template.getBinaryStream();
+		if(isStatementBased && !isFunctionBased)
+			report = reportEngine.createReportFromStatement(statement, $template);
+		else if(isFunctionBased && !isStatementBased)
+			report = reportEngine.createReport(methodName, $template, extractVargs(arguments));
+		else {
+			if($template != null)
+				$template.close();
+			throw new RuntimeException("A report must either be statement or function based!");
+		}
+		
+		result[0] = convertListOfCellsToOracleArray(report.evaluateWorkbook());
 	}
 		
 	public static void evaluateWorkbook(final BLOB in, final ARRAY[] result) throws Exception {

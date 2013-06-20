@@ -37,6 +37,11 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2 IS
      * p_template is used for the resulting report.
      */
     FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN BLOB;
+    
+    /**
+     * See BLOB f_create_report_from_statement. The result isn't stored in a blob but pipelined as a virtual table
+     */
+    FUNCTION f_eval_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN table_of_er_cell_definitions pipelined;
 
     /**
      * See f_create_report with vargs. Java stored procedure cannot have defaulted parameters
@@ -62,6 +67,16 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2 IS
     FUNCTION f_create_report(p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs) RETURN BLOB;
     
     /**
+     * See BLOB f_create_report. The result isn't stored in a blob but pipelined as a virtual table
+     */        
+    FUNCTION f_eval_report(p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs) RETURN table_of_er_cell_definitions pipelined;
+    
+    /**
+     * Evaluates a given Excel sheet and pipes all non-black cells as a virtual table
+     */
+    FUNCTION f_evaluate_workbook(p_workbook IN BLOB) RETURN table_of_er_cell_definitions pipelined;
+    
+    /**
      * Stores the blob p_blob into the file named p_filename inside the Oracle directory p_directory_name
      * The use must have write permissions for that directory
      */
@@ -71,9 +86,5 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2 IS
      * Reads the file p_filename inside the Oracle directory p_directory_name into a temporary blob
      */
     FUNCTION f_file_to_blob(p_directory_name IN VARCHAR2, p_filename IN VARCHAR2) RETURN BLOB;
-
-    PROCEDURE p_evaluate_workbook(p_workbook IN BLOB, p_result IN OUT table_of_er_cell_definitions);
-    
-    FUNCTION f_evaluate_workbook(p_workbook IN BLOB) RETURN table_of_er_cell_definitions pipelined;
 END pck_enerko_reports2;
 /
