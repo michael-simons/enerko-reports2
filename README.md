@@ -205,6 +205,15 @@ This creates an Excel workbook and pushes it back to the Reports Engine for on-t
 	) src 
 	WHERE sheetname = 'datatypes'
 	  AND cell_name IN ('B7', 'C7');
+
+It's certainly possible to evaluate random access files that are available as blobs somewhere:
+		
+	SELECT substr(cell_name,1,3) as name, substr(cell_value,1,10) as value
+	FROM table(
+		pck_enerko_reports2.f_evaluate_workbook(
+			pck_enerko_reports2.f_file_to_blob('enerko_reports', 'random_worksheet.xls')		
+		)
+	) src;
 	
 ## API
 
