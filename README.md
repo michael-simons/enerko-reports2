@@ -79,11 +79,16 @@ The BLOBs created by ENERKOs Report Engine can be used in many possible ways, th
 
 The following examples assume a writable database directory called "enerko_reports" that is writable by the ENERKOs Report Engine user. To create this directory, grant the HRE user the following privileges: 
 
-	GRANT CREATE ANY DIRECTORY TO "HRE"
+	GRANT CREATE ANY DIRECTORY TO "HRE";
 	
 and create the directory like this:
 
 	CREATE DIRECTORY enerko_reports AS '/var/tmp/enerko_reports';
+	
+or if the directoy already exists, grant read and writes to the report user:
+
+	GRANT READ ON DIRECTORY enerko_reports TO "HRE";
+	GRANT WRITE ON DIRECTORY enerko_reports TO "HRE";
 	
 Read more about LOB handling [DBMS_LOB][5]. pck_enerko_reports2 contains  [UTL_FILE][6] based procedures / functions to store LOBs into files and read files into LOBs.
 
