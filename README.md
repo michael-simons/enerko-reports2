@@ -25,6 +25,12 @@ ENERKOs Report Engine can also run client side but this is not recommended as in
 
 Reports can be created from scratch or can be based on other Excel sheets named templates. Cell formating, formulas, macros and diagrams will be preserved. When opened in Excel, those diagrams and macros will be updated using the actual values.
 
+ENERKOs Report Engine is used to create reports with over 50,000 cells, containing diagrams and more.
+
+## Requirements
+
+At least an Oracle Database 11g Release 11.1.0.6.0 standard edition. This library isn't portable to other databases and completely Oracle specific. It should probably work in Standard Edition One and Express Edition as well.
+
 ## Installation
 
 The following describes the installation inside a database with the fictive user 'hre'.
