@@ -4,6 +4,7 @@
 	<groupId>de.enerko.commons</groupId>
 	<artifactId>enerko-reports2</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
  	<parent>
     	<groupId>org.sonatype.oss</groupId>
@@ -228,4 +229,5 @@
 It has two main purposes:
 
 First, it creates reports as Excel worksheets from either SQL-Statements or pipelined table functions. Second, it evaluates existing Excel worksheets or new reports on the fly and presents them as a pipelined function that can be queried like any physical table. </description>
+	<url>http://www.enerko-informatik.de</url> <!-- Not yet available -->
 </project>
