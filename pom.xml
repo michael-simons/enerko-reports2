@@ -5,6 +5,12 @@
 	<artifactId>enerko-reports2</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
+ 	<parent>
+    	<groupId>org.sonatype.oss</groupId>
+    	<artifactId>oss-parent</artifactId>
+    	<version>7</version>
+  	</parent>
+
 	<name>ENERKOs Report Engine</name>
 
 	<prerequisites>
@@ -201,6 +207,8 @@
 	</dependencies>
 	<scm>
 		<connection>scm:git:git@github.com:michael-simons/enerko-reports2.git</connection>
+		<developerConnection>scm:git:git@github.com:michael-simons/enerko-reports2.git</developerConnection>
+		<url>git@github.com:michael-simons/enerko-reports2</url>
 	</scm>
 	<description>ENERKOs Report Engine is an Apache-POI based reporting engine that runs inside an Oracle Database.
 
