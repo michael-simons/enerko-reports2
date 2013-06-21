@@ -216,8 +216,6 @@ public class Report {
 	 * @param cellDefinition
 	 */
 	private void addCell(final Workbook workbook, final Sheet sheet, final CellDefinition cellDefinition) {		
-		final String type = cellDefinition.getType();
-		
 		final int columnNum = cellDefinition.column, rowNum = cellDefinition.row;
 		
 		Row row = sheet.getRow(rowNum);
@@ -228,12 +226,12 @@ public class Report {
 		// If the cell already exists and is no blank cell
 		// it will be used including all formating
 		if(cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
-			cell = fill(workbook, cell, type, cellDefinition.value, false);			
+			cell = fill(workbook, cell, cellDefinition, false);			
 		}
 		// Otherwise a new cell will be created, the datatype set and 
 		// optionally a format will be created
 		else {
-			cell = fill(workbook, row.createCell(columnNum), type, cellDefinition.value, true);
+			cell = fill(workbook, row.createCell(columnNum), cellDefinition, true);
 			
 			final Sheet referenceSheet;
 			if(cellDefinition.getReferenceCell() != null && (referenceSheet = workbook.getSheet(cellDefinition.getReferenceCell().sheetname)) != null) {				
@@ -266,35 +264,37 @@ public class Report {
 		return ((SimpleDateFormat)DATE_FORMATS_SQL.get(type.toLowerCase()));
 	}
 	
-	private Cell fill(final Workbook workbook, Cell tmp, String type, String value, boolean setType) {
+	private Cell fill(final Workbook workbook, Cell tmp, final CellDefinition cellDefinition, boolean setType) {
+		final String type = cellDefinition.getType();
+		
 		if(type.equalsIgnoreCase("string")) {
 			if(setType)
 				tmp.setCellType(Cell.CELL_TYPE_STRING);
-			tmp.setCellValue(value);						
+			tmp.setCellValue(cellDefinition.value);						
 		} else if(type.equalsIgnoreCase("number")) {
 			if(setType) {
 				tmp.setCellType(Cell.CELL_TYPE_NUMERIC);
-				tmp.setCellStyle(getFormat(workbook, tmp, type, value));
+				tmp.setCellStyle(getFormat(workbook, tmp, type, cellDefinition.value));
 			}
 			try {
-				tmp.setCellValue(Double.parseDouble(value.split("@@")[0]));
+				tmp.setCellValue(Double.parseDouble(cellDefinition.value.split("@@")[0]));
 			} catch(NumberFormatException e) {
-				throw new RuntimeException(String.format("Could not parse value \"%s\" for numeric cell %dx%d!", value, tmp.getColumnIndex(), tmp.getRowIndex()));
+				throw new RuntimeException(String.format("Could not parse value \"%s\" for numeric cell %dx%d!", cellDefinition.value, tmp.getColumnIndex(), tmp.getRowIndex()));
 			}
 		} else if(type.equalsIgnoreCase("date") || type.equalsIgnoreCase("datetime")) {
 			if(setType) {
 				tmp.setCellType(Cell.CELL_TYPE_NUMERIC);
-				tmp.setCellStyle(getFormat(workbook, tmp, type, value));
+				tmp.setCellStyle(getFormat(workbook, tmp, type, cellDefinition.value));
 			}
 			try {
-				tmp.setCellValue(getDateFormatSql(type).parse(value));
+				tmp.setCellValue(getDateFormatSql(type).parse(cellDefinition.value));
 			} catch(ParseException e) {
-				throw new RuntimeException(String.format("Could not parse value \"%s\" for date/datetime cell %dx%d!", value, tmp.getColumnIndex(), tmp.getRowIndex()));
+				throw new RuntimeException(String.format("Could not parse value \"%s\" for date/datetime cell %dx%d!", cellDefinition.value, tmp.getColumnIndex(), tmp.getRowIndex()));
 			}
 		} else if(type.equalsIgnoreCase("formula")) {
 			if(setType)
 				tmp.setCellType(Cell.CELL_TYPE_FORMULA);
-			tmp.setCellFormula(value);			
+			tmp.setCellFormula(cellDefinition.value);			
 		} else
 			throw new RuntimeException("Invalid type " + type);
 		return tmp;
