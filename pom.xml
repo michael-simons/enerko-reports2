@@ -193,4 +193,9 @@
 	<scm>
 		<connection>scm:git:git@github.com:michael-simons/enerko-reports2.git</connection>
 	</scm>
+	<description>ENERKOs Report Engine is an Apache-POI based reporting engine that runs inside an Oracle Database.
+
+It has two main purposes:
+
+First, it creates reports as Excel worksheets from either SQL-Statements or pipelined table functions. Second, it evaluates existing Excel worksheets or new reports on the fly and presents them as a pipelined function that can be queried like any physical table. </description>
 </project>
