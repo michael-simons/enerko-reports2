@@ -205,6 +205,16 @@ public class Report {
 		return sheet;
 	}
 	
+	/**
+	 * This method adds a new cell to the sheet of a workbook. It could 
+	 * (together with {@link #fill(Workbook, Cell, String, String, boolean)}) be moved to
+	 * the {@link CellDefinition} itself, but that would mean that the {@link CellDefinition} is
+	 * tied to a specific Excel API. Having those methods here allows the Report to become
+	 * an interface if a second engine (i.e. JXL) should be added in the future.
+	 * @param workbook
+	 * @param sheet
+	 * @param cellDefinition
+	 */
 	private void addCell(final Workbook workbook, final Sheet sheet, final CellDefinition cellDefinition) {		
 		final String type = cellDefinition.getType();
 		
