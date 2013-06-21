@@ -81,9 +81,9 @@ Then you need some SQL packages:
 
 ## Usage
 
-The BLOBs created by ENERKOs Report Engine can be used in many possible ways, the can be access by Java based webapplications through JDBC, by Forms etc.
+The BLOBs created by ENERKOs Report Engine can be used in many possible ways, they can be accessed by Java based webapplications through JDBC, by Forms etc.
 
-The following examples assume a writable database directory called "enerko_reports" that is writable by the ENERKOs Report Engine user. To create this directory, grant the HRE user the following privileges: 
+The following examples assume a database directory called "enerko_reports" that is writable by the ENERKOs Report Engine user. To create this directory, grant the HRE user the following privileges: 
 
 	GRANT CREATE ANY DIRECTORY TO "HRE";
 	
@@ -146,7 +146,7 @@ Pipelined functions are a very nice and handy feature of the Oracle database. Ba
 
 From [Using Pipelined and Parallel Table Functions][7]
 
-At ENERKO pipelined functions are main report source. Data can be selected in a PL/SQL method using standard SQL statements and than be arranged in arbitrary ways, incrementally building a report. Thus any developer with some SQL knowledge can create complex reports without overly complex queries or Java knowledge at all.
+At ENERKO pipelined functions are the main report source. Data can be selected in a PL/SQL method using standard SQL statements and than be arranged in arbitrary ways, incrementally building a report. Thus any developer with some SQL knowledge can create complex reports without overly complex queries or Java knowledge at all.
 
 The test resources contain some very simple pipelined function based reports.
 
