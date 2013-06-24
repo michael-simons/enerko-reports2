@@ -73,11 +73,11 @@ public class CellDefinition {
 	/** Pattern to split the {@link #type} into the actual type and a reference cell */
 	public final static Pattern FORMAT_PATTERN = Pattern.compile("(\\w+)(\\s*;\\s*\"([^\"]+)\"\\s*(\\w{1,3}\\d{1,}))?");
 	
-	/** The name of the sheet inside the Excel Document */
+	/** The name of the sheet inside the Excel document */
 	public final String sheetname;
 	/** Column Index (0-based) */
 	public final int column;
-	/** Row Indiex (0-based) */
+	/** Row Index (0-based) */
 	public final int row;
 	/** Cellreference ("A1" notation), only used for output) */
 	public final String name;
