@@ -173,6 +173,15 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
                 'diagramme', 0, i, 'formula', 'EXP(' || i || ')'
             ));
         END LOOP;
+        
+        -- Lange Sheetnames
+        pipe row(t_er_cell_definition(
+            'TestTestTestTestTestTestTestTestTest', 0, 0, 'string', 'Test'
+        ));
+        -- Ungültige Sheetnames
+        pipe row(t_er_cell_definition(
+            'Test [] \m/ ?', 0, 0, 'string', 'Test'
+        ));
 		
         RETURN;
     END f_all_features;		

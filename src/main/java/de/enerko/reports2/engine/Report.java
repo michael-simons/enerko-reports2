@@ -199,9 +199,10 @@ public class Report {
 	 * @return Existing or newly created sheet
 	 */
 	private Sheet getSheet(final Workbook workbook, final String name) {
-		Sheet sheet = workbook.getSheet(name);
+		final String validName = name.replaceAll("[\\\\/\\?\\*\\[\\]]", "_");
+		Sheet sheet = workbook.getSheet(validName);
 		if(sheet == null)			
-			sheet = workbook.createSheet(name);
+			sheet = workbook.createSheet(validName);
 		return sheet;
 	}
 	
