@@ -105,6 +105,7 @@ public class ReportEngineTest extends AbstractDatabaseTest {
 		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();			
 		report.write(new BufferedOutputStream(byteArrayOutputStream));
 		
+		@SuppressWarnings("unused")
 		final List<CellDefinition> cells = reportEngine.createReport(new ByteArrayInputStream(byteArrayOutputStream.toByteArray())).evaluateWorkbook();		
 	}
 }
