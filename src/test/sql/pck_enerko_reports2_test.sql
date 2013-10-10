@@ -12,6 +12,8 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2_test AS
     FUNCTION f_noarg_report RETURN table_of_er_cell_definitions pipelined;
     
     FUNCTION f_all_features RETURN table_of_er_cell_definitions pipelined;
+    
+    FUNCTION f_sheet_manipulation RETURN table_of_er_cell_definitions pipelined;
 END;
 /
 
@@ -185,6 +187,25 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
 		
         RETURN;
     END f_all_features;		
+    
+    FUNCTION f_sheet_manipulation RETURN table_of_er_cell_definitions pipelined  IS
+        r INTEGER;
+    BEGIN
+	    -- Normale Ausgabe
+	    pipe row(t_er_cell_definition(
+            'neues_blatt', 0, 0, 'string', 'Test'
+        ));
+        -- Normale Ausgabe auf Blatt das versteckt wird
+        pipe row(t_er_cell_definition(
+            'hide_me', 1, 0, 'string', 'Test'
+        ));
+        pipe row(t_er_cell_definition(
+            '__HIDE_SHEET__', 0, 0, 'string', 'hide_me'
+        ));
+        pipe row(t_er_cell_definition(
+            '__DELETE_SHEET__', 0, 0, 'string', 'delete_me'
+        ));        
+	END f_sheet_manipulation;
 END;
 /
 

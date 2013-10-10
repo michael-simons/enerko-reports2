@@ -30,17 +30,19 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.enerko.reports2.AbstractDatabaseTest;
-import de.enerko.reports2.engine.Report;
-import de.enerko.reports2.engine.ReportEngine;
 
 /**
  * @author Michael J. Simons, 2013-06-18
@@ -107,5 +109,21 @@ public class ReportEngineTest extends AbstractDatabaseTest {
 		
 		@SuppressWarnings("unused")
 		final List<CellDefinition> cells = reportEngine.createReport(new ByteArrayInputStream(byteArrayOutputStream.toByteArray())).evaluateWorkbook();		
+	}
+	
+	@Test
+	public void shouldHandleSheetManipulation() throws IOException {
+		final ReportEngine reportEngine = new ReportEngine(connection);
+		
+		final Report report = reportEngine.createReport("pck_enerko_reports2_test.f_sheet_manipulation", this.getClass().getResource("/sheet_manipulation.xls").openStream());
+		
+		File outFile = File.createTempFile(ReportEngineTest.class.getSimpleName() + "-", ".xls");		
+		report.write(new BufferedOutputStream(new FileOutputStream(outFile)));
+		
+		final Workbook workbook = new HSSFWorkbook(new FileInputStream(outFile));
+		Assert.assertTrue(workbook.isSheetHidden(workbook.getSheetIndex("hide_me")));
+		Assert.assertEquals(-1, workbook.getSheetIndex("delete_me"));
+		
+		ReportEngine.logger.log(Level.INFO, String.format("Report written to %s", outFile.getAbsolutePath()));
 	}
 }
