@@ -142,7 +142,7 @@ If a template contains sheets that should be visible to the user, they can be hi
 	
 To delete a sheet, use a cell like the following:
 	
-	t_er_cell_definition('__DELETE_SHEET__', 0, 0, 'string', 'delete_me') -- The sheet with the name "delete_me" will be hidden
+	t_er_cell_definition('__DELETE_SHEET__', 0, 0, 'string', 'delete_me') -- The sheet with the name "delete_me" will be deleted
 	
 ### Create a report using pipelined functions
 
