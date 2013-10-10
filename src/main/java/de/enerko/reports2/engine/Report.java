@@ -36,9 +36,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
@@ -61,6 +63,17 @@ import org.apache.poi.ss.usermodel.Workbook;
  * @author Michael J. Simons, 2013-06-18
  */
 public class Report {
+	/** 
+	 * If a cell has {@link CellDefinition#sheetname} set to this value, 
+	 * the sheet with the name {@link CellDefinition#value} will be hidden
+	 */
+	public final static String HIDE_SHEET_CELL = "__HIDE_SHEET__";
+	/** 
+	 * If a cell has {@link CellDefinition#sheetname} set to this value, 
+	 * the sheet with the name {@link CellDefinition#value} will be deleted
+	 */
+	public final static String DELETE_SHEET_CELL = "__DELETE_SHEET__";
+	
 	public final static Map<String, SimpleDateFormat> DATE_FORMATS_SQL;
 	public final static Map<String, String> DATE_FORMATS_EXCEL;
 	public final static Map<Integer, String> IMPORTABLE_CELL_TYPES;
@@ -108,20 +121,29 @@ public class Report {
 		if(customFunctions != null)
 			this.workbook.addToolPack(customFunctions);
 		
+		final Set<String> sheetsToHide = new HashSet<String>();
+		final Set<String> sheetsToDelete = new HashSet<String>();
+		
 		String previousSheetName = null;
 		Sheet sheet = null;
 		// Iterator over all celldefinitions
 		// this doesn't compile inside Oracle Database VM. You need to import the compiled classes
 		// or use reportSource.iterator() directly
 		for(CellDefinition cellDefinition : reportSource) {
-			// Create and cache the current sheet.			
-			if(previousSheetName == null || !previousSheetName.equals(cellDefinition.sheetname)) {
-				previousSheetName = cellDefinition.sheetname;
-				sheet = getSheet(workbook, cellDefinition.sheetname);					
+			if(HIDE_SHEET_CELL.equals(cellDefinition.sheetname))
+				sheetsToHide.add(cellDefinition.value);
+			else if(DELETE_SHEET_CELL.equals(cellDefinition.sheetname))
+				sheetsToDelete.add(cellDefinition.value);
+			else {			
+				// Create and cache the current sheet.			
+				if(previousSheetName == null || !previousSheetName.equals(cellDefinition.sheetname)) {
+					previousSheetName = cellDefinition.sheetname;
+					sheet = getSheet(workbook, cellDefinition.sheetname);					
+				}
+				
+				// create, fill and add cell
+				this.addCell(workbook, sheet, cellDefinition);
 			}
-			
-			// create, fill and add cell
-			this.addCell(workbook, sheet, cellDefinition);
 		}
 		
 		// Evaluate all formulas
@@ -131,6 +153,12 @@ public class Report {
 			formulaEvaluator.evaluateAll();
 		} catch(Exception e) {
 		}
+		
+		// Hide and delete sheets
+		for(String sheetName : sheetsToHide)
+			workbook.setSheetHidden(workbook.getSheetIndex(sheetName), true);
+		for(String sheetName : sheetsToDelete)
+			workbook.removeSheetAt(workbook.getSheetIndex(sheetName));
 	}
 	
 	Report(final InputStream workbook, UDFFinder customFunctions) {

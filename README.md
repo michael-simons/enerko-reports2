@@ -136,6 +136,14 @@ The template can be any blob containing a valid Excel sheet. The examples access
 	END;
 	/
 	
+If a template contains sheets that should be visible to the user, they can be hidden or deleted through the use of special cells that don't appear in the final report. To hide a sheet use the following cell definition:
+
+	t_er_cell_definition('__HIDE_SHEET__', 0, 0, 'string', 'hide_me') -- The sheet with the name "hide_me" will be hidden
+	
+To delete a sheet, use a cell like the following:
+	
+	t_er_cell_definition('__DELETE_SHEET__', 0, 0, 'string', 'delete_me') -- The sheet with the name "delete_me" will be hidden
+	
 ### Create a report using pipelined functions
 
 #### Without templates
