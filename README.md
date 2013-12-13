@@ -281,6 +281,7 @@ The main structure for creating reports is the cell definition t_er_cell_definit
 	  CELL_NAME                                          VARCHAR2(64)
 	  CELL_TYPE                                          VARCHAR2(512)
 	  CELL_VALUE                                         VARCHAR2(32767)
+	  CELL_COMMENT                                       VARCHAR2(32767)
 
 | Attribute      | Meanung                                                         |
 |----------------|-----------------------------------------------------------------|
@@ -290,6 +291,7 @@ The main structure for creating reports is the cell definition t_er_cell_definit
 | CELL_NAME      | Cell reference, only used for output, can be null               |
 | CELL_TYPE      | Valid datatype (see "Supported datatypes for cell definitions") |
 | CELL_VALUE     | String representation of the concrete cell                      |
+| CELL_COMMENT   | An optional comment that is added to the specified cell         |
 		
 Reports can be created either using SQL statements returning the columns mentioned here or pipelined functions returning this type in the pipe. Thus, all cells can be filled in arbitrary order.		
 		

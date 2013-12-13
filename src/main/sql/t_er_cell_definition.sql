@@ -34,6 +34,7 @@ CREATE TYPE t_er_cell_definition AS OBJECT (
   cell_name         VARCHAR2(64),
   cell_type         VARCHAR2(512),    -- string|number|date|datetime
   cell_value        VARCHAR2(32767),  -- Textuelle Repräsentation des Wertes (number mit '.', date im Format DD.MM.YYYY, datetime im Format DD.MM.YYYY HH24:MI
+  cell_comment      VARCHAR2(32767),  -- Optional cell comment
 
   CONSTRUCTOR FUNCTION t_er_cell_definition(
     p_sheetname         VARCHAR2,
@@ -49,7 +50,8 @@ CREATE TYPE t_er_cell_definition AS OBJECT (
     p_cell_row          INTEGER,
     p_cell_name         VARCHAR2,
     p_cell_type         VARCHAR2,
-    p_cell_value        VARCHAR2
+    p_cell_value        VARCHAR2,
+    p_cell_comment      VARCHAR2 DEFAULT NULL
   ) RETURN self AS result
 )
 /
@@ -78,7 +80,8 @@ CREATE OR REPLACE TYPE BODY t_er_cell_definition AS
     p_cell_row          INTEGER,
     p_cell_name         VARCHAR2,
     p_cell_type         VARCHAR2,
-    p_cell_value        VARCHAR2
+    p_cell_value        VARCHAR2,
+    p_cell_comment      VARCHAR2 DEFAULT NULL
   ) RETURN self AS result IS
   BEGIN
   	self.sheetname   := p_sheetname;
@@ -87,6 +90,7 @@ CREATE OR REPLACE TYPE BODY t_er_cell_definition AS
     self.cell_name   := p_cell_name; 
     self.cell_type   := p_cell_type;
     self.cell_value  := p_cell_value;
+    self.cell_comment:= p_cell_comment;
     RETURN;
   END t_er_cell_definition;
 END;
