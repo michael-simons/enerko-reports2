@@ -29,9 +29,15 @@ package de.enerko.reports2.engine;
 import static de.enerko.reports2.utils.Unchecker.uncheck;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+
+import de.enerko.reports2.utils.Unchecker;
 
 /**
  * This is a helper class that iterates a given result set and
@@ -39,11 +45,37 @@ import java.util.Iterator;
  * It is only used internally.
  * @author Michael J. Simons, 2013-06-18
  */
-class ReportSourceIterator implements Iterator<CellDefinition> {			
-	private final ResultSet resultSet;
+class ReportSourceIterator implements Iterator<CellDefinition> {
+	private final static Set<String> optionalColumns;
+	static {
+		final Set<String> hlp = new HashSet<String>();
+		hlp.add("cell_comment");
+		hlp.add("comment_author");
+		hlp.add("comment_column");
+		hlp.add("comment_row");
+		hlp.add("comment_width");		
+		hlp.add("comment_height");
+		hlp.add("comment_visible");
+
+		optionalColumns = Collections.unmodifiableSet(hlp);		
+	}
 		
+	private final ResultSet resultSet;
+	private final Set<String> availableColumns;
+			
 	public ReportSourceIterator(final ResultSet resultSet) {
 		this.resultSet = resultSet;			
+		final Set<String> hlp = new HashSet<String>();
+		
+		try {
+			final ResultSetMetaData metaData = this.resultSet.getMetaData();
+			for(int i=1; i<=metaData.getColumnCount(); ++i)
+				hlp.add(metaData.getColumnName(i).toLowerCase());			
+		} catch(SQLException e) {
+			throw Unchecker.uncheck(e);
+		}
+		
+		this.availableColumns = Collections.unmodifiableSet(hlp);
 	}
 
 	public boolean hasNext() {
@@ -65,6 +97,7 @@ class ReportSourceIterator implements Iterator<CellDefinition> {
 	}
 
 	public CellDefinition next() {
+	
 		return new CellDefinition(
 					this.get(String.class, "sheetname"),
 					this.get(int.class, "cell_column"),
@@ -72,7 +105,15 @@ class ReportSourceIterator implements Iterator<CellDefinition> {
 					this.get(String.class, "cell_name"),
 					this.get(String.class, "cell_type"),
 					this.get(String.class, "cell_value"),
-					this.get(String.class, "cell_comment")
+					new CommentDefinition(					
+						this.get(String.class, "comment_author"),
+						this.get(String.class, "cell_comment"),
+						this.get(Integer.class, "comment_column"),
+						this.get(Integer.class, "comment_row"),
+						this.get(int.class, "comment_width"),
+						this.get(int.class, "comment_height"),
+						Boolean.parseBoolean(this.get(String.class, "comment_visible"))
+					)
 			);
 	}
 
@@ -92,19 +133,25 @@ class ReportSourceIterator implements Iterator<CellDefinition> {
 	 */
 	private <T> T get(final Class<T> typeClazz, String columnName) {
 		T rv = null;
-		try {			
-			final String typeName = typeClazz.getSimpleName();			
-			if("String".equals(typeName))
-				rv = (T) this.resultSet.getString(columnName);
-			else if("int".equals(typeName))
-				rv = (T)((Integer)this.resultSet.getInt(columnName));
-			else 
-				throw new RuntimeException(String.format("Unsupported type %s", typeClazz.getName()));			
-		} catch (SQLException e) {			
-			if(e.getErrorCode() == 17006)
-				throw new ReportSource.MissingReportColumn(columnName);
-			else 
-				throw uncheck(e);	
+		if(!optionalColumns.contains(columnName) || this.availableColumns.contains(columnName)) {
+			try {			
+				final String typeName = typeClazz.getSimpleName();			
+				if("String".equals(typeName))
+					rv = (T) this.resultSet.getString(columnName);
+				else if("int".equals(typeName))
+					rv = (T)((Integer)this.resultSet.getInt(columnName));
+				else if("Integer".equals(typeName)) {
+					Number hlp = (Number)this.resultSet.getObject(columnName);
+					if(hlp != null) 
+						rv = (T) new Integer(hlp.intValue());
+				} else 
+					throw new RuntimeException(String.format("Unsupported type %s", typeClazz.getName()));			
+			} catch (SQLException e) {				
+				if(e.getErrorCode() == 17006)
+					throw new ReportSource.MissingReportColumn(columnName);
+				else 
+					throw uncheck(e);	
+			}
 		}
 		return rv;
 	}
