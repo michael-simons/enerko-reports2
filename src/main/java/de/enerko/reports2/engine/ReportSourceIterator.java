@@ -71,7 +71,8 @@ class ReportSourceIterator implements Iterator<CellDefinition> {
 					this.get(int.class, "cell_row"),
 					this.get(String.class, "cell_name"),
 					this.get(String.class, "cell_type"),
-					this.get(String.class, "cell_value")
+					this.get(String.class, "cell_value"),
+					this.get(String.class, "cell_comment")
 			);
 	}
 
