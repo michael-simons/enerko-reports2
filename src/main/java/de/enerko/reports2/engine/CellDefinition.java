@@ -85,6 +85,8 @@ public class CellDefinition {
 	private final String type;
 	/** A string representation of the value */
 	public final String value;
+	/** An optional cell comment */
+	public final String comment;
 	
 	/** Actual used datatype */
 	private String actualType;
@@ -92,12 +94,17 @@ public class CellDefinition {
 	private CellPointer referenceCell;
 	
 	public CellDefinition(String sheetname, int column, int row, String name, String type, String value) {
+		this(sheetname, column, row, name, type, value, null);
+	}
+	
+	public CellDefinition(String sheetname, int column, int row, String name, String type, String value, String comment) {
 		this.sheetname = sheetname;
 		this.column = column;
 		this.row = row;
 		this.name = name;
 		this.type = type;
 		this.value = value;
+		this.comment = comment;
 	}	
 	
 	public CellDefinition(final String sheetname, final Cell cell) {
@@ -121,6 +128,10 @@ public class CellDefinition {
 			this.name = CellReferenceHelper.getCellReference(cell.getColumnIndex(), cell.getRowIndex());
 			this.type = cellValue.type;
 			this.value = cellValue.representation;
+			if(cell.getCellComment() == null || cell.getCellComment().getString() == null)
+				this.comment = null;
+			else
+				this.comment = cell.getCellComment().getString().getString();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} 			
@@ -178,7 +189,8 @@ public class CellDefinition {
 				this.row,
 				this.name,
 				this.type,
-				this.value
+				this.value,
+				this.comment
 		};
 	}
 }
