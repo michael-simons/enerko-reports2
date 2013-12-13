@@ -49,6 +49,10 @@ import org.apache.poi.ss.formula.IStabilityClassifier;
 import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -269,7 +273,30 @@ public class Report {
 				if(referenceCell != null && referenceCell.getCellStyle() != null)
 					cell.setCellStyle(referenceCell.getCellStyle());				
 			}
-		}		
+		}
+		
+		// Add an optional comment		
+		if(cellDefinition.hasComment()) {
+			final CreationHelper factory = workbook.getCreationHelper();
+			
+			final Drawing drawing = sheet.createDrawingPatriarch();
+			final ClientAnchor commentAnchor = factory.createClientAnchor();
+			
+			final int col1 = cellDefinition.comment.column == null ? cell.getColumnIndex()+1 : cellDefinition.comment.column;
+			final int row1 = cellDefinition.comment.row    == null ? cell.getRowIndex()      : cellDefinition.comment.row;
+			
+			commentAnchor.setCol1(col1);			
+			commentAnchor.setRow1(row1);					
+			commentAnchor.setCol2(col1 + Math.max(1, cellDefinition.comment.width));
+			commentAnchor.setRow2(row1 + Math.max(1, cellDefinition.comment.height));
+			
+			final Comment comment = drawing.createCellComment(commentAnchor);			
+			comment.setString(factory.createRichTextString(cellDefinition.comment.text));			
+			comment.setAuthor(cellDefinition.comment.author);			
+			comment.setVisible(cellDefinition.comment.visible);
+			
+			cell.setCellComment(comment);
+		}
 	}
 	
 	private CellStyle getFormat(final Workbook workbook, final Cell cell, String type, String value) {		
