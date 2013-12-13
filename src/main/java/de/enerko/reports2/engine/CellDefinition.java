@@ -86,7 +86,7 @@ public class CellDefinition {
 	/** A string representation of the value */
 	public final String value;
 	/** An optional cell comment */
-	public final String comment;
+	public final CommentDefinition comment;
 	
 	/** Actual used datatype */
 	private String actualType;
@@ -97,7 +97,7 @@ public class CellDefinition {
 		this(sheetname, column, row, name, type, value, null);
 	}
 	
-	public CellDefinition(String sheetname, int column, int row, String name, String type, String value, String comment) {
+	public CellDefinition(String sheetname, int column, int row, String name, String type, String value, CommentDefinition comment) {
 		this.sheetname = sheetname;
 		this.column = column;
 		this.row = row;
@@ -130,8 +130,8 @@ public class CellDefinition {
 			this.value = cellValue.representation;
 			if(cell.getCellComment() == null || cell.getCellComment().getString() == null)
 				this.comment = null;
-			else
-				this.comment = cell.getCellComment().getString().getString();
+			else 				
+				this.comment = new CommentDefinition(cell.getCellComment());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} 			
@@ -190,7 +190,14 @@ public class CellDefinition {
 				this.name,
 				this.type,
 				this.value,
-				this.comment
+				(this.comment == null ? null : this.comment.text),
+				(this.comment == null ? null : this.comment.author),
+				null,
+				null
 		};
+	}
+	
+	public boolean hasComment() {
+		return this.comment != null && this.comment.text != null && this.comment.text.trim().length() != 0;
 	}
 }
