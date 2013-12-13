@@ -34,7 +34,13 @@ CREATE TYPE t_er_cell_definition AS OBJECT (
   cell_name         VARCHAR2(64),
   cell_type         VARCHAR2(512),    -- string|number|date|datetime
   cell_value        VARCHAR2(32767),  -- Textuelle Repräsentation des Wertes (number mit '.', date im Format DD.MM.YYYY, datetime im Format DD.MM.YYYY HH24:MI
-  cell_comment      VARCHAR2(32767),  -- Optional cell comment
+  cell_comment      VARCHAR2(32767),  -- Optionaler Kommentar fuer die Zelle
+  comment_author    VARCHAR2(32767),  -- Optionaler Autor des Kommentars
+  comment_column    INTEGER,          -- Spalte Kommentar (Default: Spalte Zelle + 1)
+  comment_row       INTEGER,          -- Zeile Kommentar (Default: Zeile Zelle)
+  comment_width     INTEGER,          -- Breite des Kommentars (default 1)
+  comment_height    INTEGER,          -- Hoehe des Kommentars (default 1)
+  comment_visible   VARCHAR2(8),      -- Flag, ob Kommentar sichtbar ist oder nicht (true, false), default false
 
   CONSTRUCTOR FUNCTION t_er_cell_definition(
     p_sheetname         VARCHAR2,
@@ -50,8 +56,17 @@ CREATE TYPE t_er_cell_definition AS OBJECT (
     p_cell_row          INTEGER,
     p_cell_name         VARCHAR2,
     p_cell_type         VARCHAR2,
+    p_cell_value        VARCHAR2
+  ) RETURN self AS result,
+  
+   CONSTRUCTOR FUNCTION t_er_cell_definition(
+    p_sheetname         VARCHAR2,
+    p_cell_column       INTEGER,
+    p_cell_row          INTEGER,
+    p_cell_name         VARCHAR2,
+    p_cell_type         VARCHAR2,
     p_cell_value        VARCHAR2,
-    p_cell_comment      VARCHAR2 DEFAULT NULL
+    p_comment           VARCHAR2
   ) RETURN self AS result
 )
 /
@@ -71,6 +86,9 @@ CREATE OR REPLACE TYPE BODY t_er_cell_definition AS
     self.cell_name   := null; 
     self.cell_type   := p_cell_type;
     self.cell_value  := p_cell_value;
+    
+    self.cell_comment  := null;
+    self.comment_author:= user;
     RETURN;
   END t_er_cell_definition;
   
@@ -80,8 +98,7 @@ CREATE OR REPLACE TYPE BODY t_er_cell_definition AS
     p_cell_row          INTEGER,
     p_cell_name         VARCHAR2,
     p_cell_type         VARCHAR2,
-    p_cell_value        VARCHAR2,
-    p_cell_comment      VARCHAR2 DEFAULT NULL
+    p_cell_value        VARCHAR2
   ) RETURN self AS result IS
   BEGIN
   	self.sheetname   := p_sheetname;
@@ -90,8 +107,32 @@ CREATE OR REPLACE TYPE BODY t_er_cell_definition AS
     self.cell_name   := p_cell_name; 
     self.cell_type   := p_cell_type;
     self.cell_value  := p_cell_value;
-    self.cell_comment:= p_cell_comment;
+    
+    self.cell_comment  := null;
+    self.comment_author:= user;
     RETURN;
-  END t_er_cell_definition;
+  END t_er_cell_definition;    
+  
+  CONSTRUCTOR FUNCTION t_er_cell_definition(
+    p_sheetname         VARCHAR2,
+    p_cell_column       INTEGER,
+    p_cell_row          INTEGER,
+    p_cell_name         VARCHAR2,
+    p_cell_type         VARCHAR2,
+    p_cell_value        VARCHAR2,
+    p_comment           VARCHAR2
+  ) RETURN self AS result IS
+  BEGIN
+  	self.sheetname   := p_sheetname;
+    self.cell_column := p_cell_column;
+    self.cell_row    := p_cell_row;   
+    self.cell_name   := p_cell_name; 
+    self.cell_type   := p_cell_type;
+    self.cell_value  := p_cell_value;
+    
+    self.cell_comment  := p_comment;
+    self.comment_author:= user;    
+    RETURN;
+  END t_er_cell_definition;  
 END;
 /
