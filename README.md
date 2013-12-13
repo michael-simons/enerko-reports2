@@ -62,6 +62,10 @@ First, load the required dependencies:
 then load ENERKOs Report Engine:
 
 	loadjava.bat -user hre/hre@database -resolve target/enerko-reports2-0.0.1-SNAPSHOT.jar
+	
+The same using dbms_java (Please note that the file must exists on path reachable by the database process)
+
+	 CALL dbms_java.loadjava('-resolve /var/tmp/enerko_reports/enerko-reports2-0.0.2-SNAPSHOT.jar');
 
 Then you need some SQL packages:
 
