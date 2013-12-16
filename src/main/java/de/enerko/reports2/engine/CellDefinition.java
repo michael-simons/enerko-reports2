@@ -190,10 +190,7 @@ public class CellDefinition {
 				this.name,
 				this.type,
 				this.value,
-				(this.comment == null ? null : this.comment.text),
-				(this.comment == null ? null : this.comment.author),
-				null,
-				null
+				this.comment == null ? null : this.comment.toSQLStructObject()
 		};
 	}
 	
