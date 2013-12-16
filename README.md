@@ -65,7 +65,9 @@ then load ENERKOs Report Engine:
 	
 The same using dbms_java (Please note that the file must exists on path reachable by the database process)
 
-	 CALL dbms_java.loadjava('-resolve /var/tmp/enerko_reports/enerko-reports2-0.0.2-SNAPSHOT.jar');
+	set serveroutput on
+	CALL dbms_java.set_output(3000);
+	CALL dbms_java.loadjava('-resolve /var/tmp/enerko_reports/enerko-reports2-0.0.2-SNAPSHOT.jar');
 
 Then you need some SQL packages:
 
