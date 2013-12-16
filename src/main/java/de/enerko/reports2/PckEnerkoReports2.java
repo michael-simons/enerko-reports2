@@ -84,6 +84,18 @@ public class PckEnerkoReports2 {
 		return writeReportToBlob(report);
 	}
 	
+	public static BLOB createReportFromDataset(final ARRAY dataset) throws SQLException, IOException {
+		final Report report = reportEngine.createReportFromDataset(dataset);
+		
+		return writeReportToBlob(report);		
+	}
+	
+	public static BLOB createReportFromDataset(final ARRAY dataset, final BLOB template) throws SQLException, IOException {
+		final Report report = reportEngine.createReportFromDataset(dataset, template.getBinaryStream());
+		
+		return writeReportToBlob(report);		
+	}
+	
 	public static BLOB createReport(final String methodName, final ARRAY arguments) throws SQLException, IOException {		
 		final Report report = reportEngine.createReport(methodName, extractVargs(arguments));
 		

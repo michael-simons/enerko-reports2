@@ -43,6 +43,12 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
     FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN BLOB IS LANGUAGE JAVA
         NAME 'de.enerko.reports2.PckEnerkoReports2.createReportFromStatement(java.lang.String, oracle.sql.BLOB) return oracle.sql.BLOB';
         
+   	FUNCTION f_create_report_from_dataset(p_dataset IN table_of_er_cell_definitions) RETURN BLOB IS LANGUAGE JAVA
+   		NAME 'de.enerko.reports2.PckEnerkoReports2.createReportFromDataset(oracle.sql.ARRAY) return oracle.sql.BLOB';   
+   		
+	FUNCTION f_create_report_from_dataset(p_dataset IN table_of_er_cell_definitions, p_template IN BLOB) RETURN BLOB IS LANGUAGE JAVA
+   		NAME 'de.enerko.reports2.PckEnerkoReports2.createReportFromDataset(oracle.sql.ARRAY, oracle.sql.BLOB) return oracle.sql.BLOB';   		
+   
     FUNCTION f_eval_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN table_of_er_cell_definitions pipelined IS
         v_results table_of_er_cell_definitions;
         i         NUMBER;

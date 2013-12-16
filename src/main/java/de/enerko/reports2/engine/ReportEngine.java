@@ -35,6 +35,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import oracle.jdbc.OracleConnection;
+import oracle.sql.ARRAY;
 
 import org.apache.poi.ss.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.udf.AggregatingUDFFinder;
@@ -88,6 +89,26 @@ public class ReportEngine {
 	 */
 	public Report createReportFromStatement(final String statement, final InputStream template) {
 		return new Report(new StatementBasedReportSource(this.connection, statement), this.createCustomFunctions(), template);		
+	}
+	
+	/**
+	 * Creates a report based on an Oracle ARRAY containing elements of type t_er_cell_definition
+	 * @param dataset The data on which the report should be created
+	 * @return
+	 */
+	public Report createReportFromDataset(final ARRAY dataset) {
+		return new Report(new DatasetBasedReportSource(dataset), this.createCustomFunctions());
+	}
+	
+	/**
+	 * Creates a report based on an Oracle ARRAY containing elements of type t_er_cell_definition
+	 * and a template will be used.
+	 * @param dataset The data on which the report should be created
+	 * @param template Input stream for a template. It will automatically be buffered.
+	 * @return
+	 */
+	public Report createReportFromDataset(final ARRAY dataset, final InputStream template) {
+		return new Report(new DatasetBasedReportSource(dataset), this.createCustomFunctions(), template);
 	}
 	
 	/**

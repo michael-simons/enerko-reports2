@@ -43,6 +43,18 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2 IS
     FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN BLOB;
     
     /**
+     * Creates an Excel workbook from a table of t_er_cell_definition (a dataset)
+     * and retuns the binary data.
+     */
+    FUNCTION f_create_report_from_dataset(p_dataset IN table_of_er_cell_definitions) RETURN BLOB;
+    
+    /**
+     * Creates an Excel workbook from a table of t_er_cell_definition (a dataset) 
+     * and retuns the binary data. The template p_template will be applied.
+     */
+    FUNCTION f_create_report_from_dataset(p_dataset IN table_of_er_cell_definitions, p_template IN BLOB) RETURN BLOB;
+    
+    /**
      * See BLOB f_create_report_from_statement. The result isn't stored in a blob but pipelined as a virtual table
      */
     FUNCTION f_eval_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN table_of_er_cell_definitions pipelined;
