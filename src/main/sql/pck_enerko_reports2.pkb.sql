@@ -36,14 +36,8 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
      */
     PROCEDURE p_create_and_evaluate_report(p_statement IN VARCHAR2, p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs, p_result IN OUT table_of_er_cell_definitions) IS LANGUAGE JAVA
         NAME 'de.enerko.reports2.PckEnerkoReports2.createAndEvaluateReport(java.lang.String, java.lang.String, oracle.sql.BLOB, oracle.sql.ARRAY, oracle.sql.ARRAY[])';
-
-    /**
-     * private helper method to evaluate a workbook
-     */
-    PROCEDURE p_evaluate_workbook(p_workbook IN BLOB, p_result IN OUT table_of_er_cell_definitions) IS LANGUAGE JAVA
-        NAME 'de.enerko.reports2.PckEnerkoReports2.evaluateWorkbook(oracle.sql.BLOB, oracle.sql.ARRAY[])';
-
-    FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2) RETURN BLOB IS LANGUAGE JAVA
+    
+	FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2) RETURN BLOB IS LANGUAGE JAVA
         NAME 'de.enerko.reports2.PckEnerkoReports2.createReportFromStatement(java.lang.String) return oracle.sql.BLOB';
 
     FUNCTION f_create_report_from_statement(p_statement IN VARCHAR2, p_template IN BLOB) RETURN BLOB IS LANGUAGE JAVA
@@ -145,6 +139,9 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2 IS
         RETURN v_blob;
     END f_file_to_blob;
         
+    PROCEDURE p_evaluate_workbook(p_workbook IN BLOB, p_result IN OUT table_of_er_cell_definitions) IS LANGUAGE JAVA
+        NAME 'de.enerko.reports2.PckEnerkoReports2.evaluateWorkbook(oracle.sql.BLOB, oracle.sql.ARRAY[])';
+    
     FUNCTION f_evaluate_workbook(p_workbook IN BLOB) RETURN table_of_er_cell_definitions pipelined IS
         v_results table_of_er_cell_definitions;
         i         NUMBER;

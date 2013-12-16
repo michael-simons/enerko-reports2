@@ -76,6 +76,11 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2 IS
     FUNCTION f_eval_report(p_method_name IN VARCHAR2, p_template IN BLOB, p_args IN t_vargs) RETURN table_of_er_cell_definitions pipelined;
     
     /**
+     * Evaluates a given Excel sheet and stores the result into p_result
+     */
+	PROCEDURE p_evaluate_workbook(p_workbook IN BLOB, p_result IN OUT table_of_er_cell_definitions);
+    
+    /**
      * Evaluates a given Excel sheet and pipes all non-black cells as a virtual table
      */
     FUNCTION f_evaluate_workbook(p_workbook IN BLOB) RETURN table_of_er_cell_definitions pipelined;
