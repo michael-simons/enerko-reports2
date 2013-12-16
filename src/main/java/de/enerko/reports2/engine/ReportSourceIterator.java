@@ -32,6 +32,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Struct;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,21 +46,7 @@ import de.enerko.reports2.utils.Unchecker;
  * It is only used internally.
  * @author Michael J. Simons, 2013-06-18
  */
-class ReportSourceIterator implements Iterator<CellDefinition> {
-	private final static Set<String> optionalColumns;
-	static {
-		final Set<String> hlp = new HashSet<String>();
-		hlp.add("cell_comment");
-		hlp.add("comment_author");
-		hlp.add("comment_column");
-		hlp.add("comment_row");
-		hlp.add("comment_width");		
-		hlp.add("comment_height");
-		hlp.add("comment_visible");
-
-		optionalColumns = Collections.unmodifiableSet(hlp);		
-	}
-		
+class ReportSourceIterator implements Iterator<CellDefinition> {	
 	private final ResultSet resultSet;
 	private final Set<String> availableColumns;
 			
@@ -97,7 +84,33 @@ class ReportSourceIterator implements Iterator<CellDefinition> {
 	}
 
 	public CellDefinition next() {
-	
+		final CommentDefinition commentDefinition;
+		if(!this.availableColumns.contains("cell_comment")) {
+			commentDefinition = null;
+		} else {
+			try {
+				final Struct commentDefinitionStruct = (Struct) this.resultSet.getObject("cell_comment");
+				if(commentDefinitionStruct == null)
+					commentDefinition = null;
+				else {
+					// Attributes are retrieved as they are declared in t_er_comment_definition
+					// could cast to STRUCT and use ResultSetMetaData but i don't see the point
+					final Object[] attributes = commentDefinitionStruct.getAttributes();					
+					commentDefinition = new CommentDefinition(
+							(String)attributes[0],
+							(String)attributes[1],
+							numberToInteger((Number)attributes[2]),
+							numberToInteger((Number)attributes[3]),
+							numberToInteger((Number)attributes[4]),
+							numberToInteger((Number)attributes[5]),
+							Boolean.parseBoolean((String)attributes[6])
+					);
+				}				
+			} catch (SQLException e) {
+				throw Unchecker.uncheck(e);
+			}
+		}
+				
 		return new CellDefinition(
 					this.get(String.class, "sheetname"),
 					this.get(int.class, "cell_column"),
@@ -105,15 +118,7 @@ class ReportSourceIterator implements Iterator<CellDefinition> {
 					this.get(String.class, "cell_name"),
 					this.get(String.class, "cell_type"),
 					this.get(String.class, "cell_value"),
-					new CommentDefinition(					
-						this.get(String.class, "comment_author"),
-						this.get(String.class, "cell_comment"),
-						this.get(Integer.class, "comment_column"),
-						this.get(Integer.class, "comment_row"),
-						this.get(int.class, "comment_width"),
-						this.get(int.class, "comment_height"),
-						Boolean.parseBoolean(this.get(String.class, "comment_visible"))
-					)
+					commentDefinition
 			);
 	}
 
@@ -133,26 +138,24 @@ class ReportSourceIterator implements Iterator<CellDefinition> {
 	 */
 	private <T> T get(final Class<T> typeClazz, String columnName) {
 		T rv = null;
-		if(!optionalColumns.contains(columnName) || this.availableColumns.contains(columnName)) {
-			try {			
-				final String typeName = typeClazz.getSimpleName();			
-				if("String".equals(typeName))
-					rv = (T) this.resultSet.getString(columnName);
-				else if("int".equals(typeName))
-					rv = (T)((Integer)this.resultSet.getInt(columnName));
-				else if("Integer".equals(typeName)) {
-					Number hlp = (Number)this.resultSet.getObject(columnName);
-					if(hlp != null) 
-						rv = (T) new Integer(hlp.intValue());
-				} else 
-					throw new RuntimeException(String.format("Unsupported type %s", typeClazz.getName()));			
-			} catch (SQLException e) {				
-				if(e.getErrorCode() == 17006)
-					throw new ReportSource.MissingReportColumn(columnName);
-				else 
-					throw uncheck(e);	
+		try {			
+			if(String.class == typeClazz)
+				rv = (T) this.resultSet.getString(columnName);
+			else if(int.class == typeClazz)
+				rv = (T)((Integer)this.resultSet.getInt(columnName));
+			else {
+				throw new RuntimeException(String.format("Unsupported type %s", typeClazz.getName()));
 			}
-		}
+		} catch (SQLException e) {				
+			if(e.getErrorCode() == 17006)
+				throw new ReportSource.MissingReportColumn(columnName);
+			else 
+				throw uncheck(e);	
+		}		
 		return rv;
+	}
+	
+	private static Integer numberToInteger(final Number number) {
+		return number == null ? null : new Integer(number.intValue());
 	}
 }
