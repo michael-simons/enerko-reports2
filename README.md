@@ -287,9 +287,9 @@ The main structure for creating reports is the cell definition t_er_cell_definit
 	  CELL_NAME                                          VARCHAR2(64)
 	  CELL_TYPE                                          VARCHAR2(512)
 	  CELL_VALUE                                         VARCHAR2(32767)
-	  CELL_COMMENT                                       VARCHAR2(32767)
+	  CELL_COMMENT                                       T_ER_COMMENT_DEFINITION
 
-| Attribute      | Meanung                                                         |
+| Attribute      | Meaning                                                         |
 |----------------|-----------------------------------------------------------------|
 | SHEETNAME      | Name of the worksheet                                           |
 | CELL_COLUMN    | 0-based column index                                            |
@@ -300,6 +300,47 @@ The main structure for creating reports is the cell definition t_er_cell_definit
 | CELL_COMMENT   | An optional comment that is added to the specified cell         |
 		
 Reports can be created either using SQL statements returning the columns mentioned here or pipelined functions returning this type in the pipe. Thus, all cells can be filled in arbitrary order.		
+
+Cells can contain Excel comments which are defined through t_er_comment_definition:
+
+	SQL> desc T_ER_COMMENT_DEFINITION
+	 Name					   Null?    Typ
+	 ----------------------------------------- -------- ----------------------------
+	 COMMENT_TEXT					    VARCHAR2(32767)
+	 COMMENT_AUTHOR 				    VARCHAR2(32767)
+	 COMMENT_COLUMN 				    NUMBER(38)
+	 COMMENT_ROW					    NUMBER(38)
+	 COMMENT_WIDTH					    NUMBER(38)
+	 COMMENT_HEIGHT 				    NUMBER(38)
+	 COMMENT_VISIBLE				    VARCHAR2(8)
+
+| Attribute      | Meaning                                                         |
+|----------------|-----------------------------------------------------------------|
+| COMMENT_TEXT   | The text of the comment                                         |
+| COMMENT_AUTHOR | The author of the comment (defaults to the database user)	   |
+| COMMENT_COLUMN | 1-based column, defaults to the column of the cell + 1          |
+| COMMENT_ROW	 | 1-based row, defaults to the row of the cell                    |
+| COMMENT_WIDTH	 | Width of the comment, default 1                                 |
+| COMMENT_HEIGHT | Height of the comment, default 1                                |
+| COMMENT_VISIBLE| Flag, if the comment is visible, default 'false'                |
+
+
+You can manually assign a comment to an existing t_er_cell_definition object or use one of the provided constructors, either using a plain string or a complete t_er_comment_definition object:
+
+	FUNCTION f_fb_report_source_test2 RETURN table_of_er_cell_definitions pipelined IS
+	BEGIN		    
+	    pipe row(t_er_cell_definition(
+	        's1', 1, 1, null, 'string', 'beliebiger string wert', 'mit einem beliebigen Kommentar'
+	    ));
+	    pipe row(t_er_cell_definition(
+	        's1', 1, 2, null, 'string', 'beliebiger string wert', 
+	        t_er_comment_definition(
+	            'test', p_column => 23, p_row => 42, p_width => 3, p_height => 4, p_visible => 'true'
+	        )
+	    ));
+	END f_fb_report_source_test2;
+ 
+You'll find more examples in the test package pck_enerko_reports2_test.
 		
 ### Options and formatting
 
