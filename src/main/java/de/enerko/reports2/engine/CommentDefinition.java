@@ -70,6 +70,10 @@ public class CommentDefinition {
 		this(comment.getString().getString(), comment.getAuthor(), comment.getColumn(), comment.getRow(), -1, -1, comment.isVisible());
 	}
 	
+	public CommentDefinition(String text) {
+		this(text, System.getProperty("user.name"), null, null, null, null, false);
+	}
+	
 	public CommentDefinition(String text, String author, final Integer column, final Integer row,  final Integer width, final Integer height, boolean visible) {		
 		this.text = text;
 		this.author = author;
