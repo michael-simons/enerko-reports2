@@ -61,7 +61,9 @@ CREATE TYPE t_er_cell_definition AS OBJECT (
     p_cell_type         VARCHAR2,
     p_cell_value        VARCHAR2,
     p_comment           VARCHAR2
-  ) RETURN self AS result
+  ) RETURN self AS result,
+  
+  MEMBER FUNCTION f_get_comment RETURN VARCHAR2
 )
 /
 
@@ -124,6 +126,15 @@ CREATE OR REPLACE TYPE BODY t_er_cell_definition AS
     
     self.cell_comment:= t_er_comment_definition(p_text => p_comment);       
     RETURN;
-  END t_er_cell_definition;  
+  END t_er_cell_definition;
+  
+  MEMBER FUNCTION f_get_comment RETURN VARCHAR2 IS
+  	v_comment_text VARCHAR2(32767) := null;
+  BEGIN
+	IF self.cell_comment IS NOT NULL THEN
+	  v_comment_text := self.cell_comment.comment_text;	
+	END IF;
+	RETURN v_comment_text;
+  END;
 END;
 /
