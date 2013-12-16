@@ -26,7 +26,11 @@
  */
 package de.enerko.reports2.engine;
 
+import static de.enerko.reports2.utils.Types.numberToInteger;
+
 import java.lang.reflect.Method;
+import java.sql.SQLException;
+import java.sql.Struct;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,7 +42,24 @@ import org.apache.poi.ss.usermodel.Cell;
  * PL/SQL object type t_hre_cell_definition
  * @author Michael J. Simons, 2013-06-17
  */
-public class CellDefinition {	
+public class CellDefinition {
+	public static CellDefinition fromStruct(final Struct struct) throws SQLException {
+		CellDefinition rv = null;
+		if(struct != null) {
+			final Object[] attributes = struct.getAttributes();					
+			rv = new CellDefinition(
+					(String)attributes[0],					
+					numberToInteger((Number)attributes[1]),
+					numberToInteger((Number)attributes[2]),
+					(String)attributes[3],
+					(String)attributes[4],
+					(String)attributes[5],
+					CommentDefinition.fromStruct((Struct) attributes[6])
+			);
+		}
+		return rv;
+	}
+	
 	/**
 	 * Points to another cell by sheetname, columan and row
 	 */
