@@ -31,9 +31,9 @@ import org.apache.poi.ss.usermodel.Comment;
 /**
  * @author Michael J. Simons, 2013-12-13
  */
-public class CommentDefinition {
-	public final String author;
+public class CommentDefinition {	
 	public final String text;
+	public final String author;
 	public final Integer column;
 	public final Integer row;
 	/** Only used when creating comments */
@@ -43,16 +43,28 @@ public class CommentDefinition {
 	public final boolean visible;
 	
 	public CommentDefinition(final Comment comment) {		
-		this(comment.getAuthor(), comment.getString().getString(), comment.getColumn(), comment.getRow(), -1, -1, comment.isVisible());
+		this(comment.getString().getString(), comment.getAuthor(), comment.getColumn(), comment.getRow(), -1, -1, comment.isVisible());
 	}
 	
-	public CommentDefinition(String author, String text, final Integer column, final Integer row,  Integer width, Integer height, boolean visible) {
-		this.author = author;
+	public CommentDefinition(String text, String author, final Integer column, final Integer row,  final Integer width, final Integer height, boolean visible) {		
 		this.text = text;
+		this.author = author;
 		this.column = column == null ? null : column;
 		this.row = row == null ? null : row;
 		this.width = width == null ? 1 : width;
 		this.height = height == null ? 1 : height;
 		this.visible = visible;
-	}	
+	}
+	
+	public Object[] toSQLStructObject() {
+		return new Object[] {
+				this.text,
+				this.author,
+				this.column,
+				this.row,
+				this.width,
+				this.height,
+				Boolean.toString(this.visible)
+		};
+	}
 }
