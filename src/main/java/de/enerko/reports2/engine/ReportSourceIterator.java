@@ -88,24 +88,8 @@ class ReportSourceIterator implements Iterator<CellDefinition> {
 		if(!this.availableColumns.contains("cell_comment")) {
 			commentDefinition = null;
 		} else {
-			try {
-				final Struct commentDefinitionStruct = (Struct) this.resultSet.getObject("cell_comment");
-				if(commentDefinitionStruct == null)
-					commentDefinition = null;
-				else {
-					// Attributes are retrieved as they are declared in t_er_comment_definition
-					// could cast to STRUCT and use ResultSetMetaData but i don't see the point
-					final Object[] attributes = commentDefinitionStruct.getAttributes();					
-					commentDefinition = new CommentDefinition(
-							(String)attributes[0],
-							(String)attributes[1],
-							numberToInteger((Number)attributes[2]),
-							numberToInteger((Number)attributes[3]),
-							numberToInteger((Number)attributes[4]),
-							numberToInteger((Number)attributes[5]),
-							Boolean.parseBoolean((String)attributes[6])
-					);
-				}				
+			try {				
+				commentDefinition = CommentDefinition.fromStruct((Struct) this.resultSet.getObject("cell_comment"));						
 			} catch (SQLException e) {
 				throw Unchecker.uncheck(e);
 			}
@@ -153,9 +137,5 @@ class ReportSourceIterator implements Iterator<CellDefinition> {
 				throw uncheck(e);	
 		}		
 		return rv;
-	}
-	
-	private static Integer numberToInteger(final Number number) {
-		return number == null ? null : new Integer(number.intValue());
-	}
+	}	
 }
