@@ -26,7 +26,9 @@
  */
 package de.enerko.reports2.engine;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
@@ -36,8 +38,6 @@ import java.util.List;
 import org.junit.Test;
 
 import de.enerko.reports2.AbstractDatabaseTest;
-import de.enerko.reports2.engine.CellDefinition;
-import de.enerko.reports2.engine.StatementBasedReportSource;
 import de.enerko.reports2.engine.ReportSource.MissingReportColumn;
 
 /**
@@ -67,5 +67,45 @@ public class StatementBasedReportSourceTest extends AbstractDatabaseTest {
 		for(CellDefinition cellDefinition : reportSource)
 			cellDefinitions.add(cellDefinition);
 		assertThat(cellDefinitions.size(), is(1));
+	}
+	
+	@Test
+	public void shouldHandleValidSelectWithComment() throws SQLException {
+		final StatementBasedReportSource reportSource = 
+				new StatementBasedReportSource(connection, 
+						"Select 's1' as sheetname, 1 as cell_column, 1 as cell_row, 'c1' as cell_name, 'ct' as cell_type, 'cv' as cell_value, t_er_comment_definition('test') as cell_comment from dual");
+		final List<CellDefinition> cellDefinitions = new ArrayList<CellDefinition>();
+		for(CellDefinition cellDefinition : reportSource)
+			cellDefinitions.add(cellDefinition);
+		assertThat(cellDefinitions.size(), is(1));
+		final CommentDefinition commentDefinition = cellDefinitions.get(0).comment; 
+		assertThat(commentDefinition, notNullValue());
+		assertThat(commentDefinition.author, is("HRE"));
+		assertThat(commentDefinition.column, nullValue());
+		assertThat(commentDefinition.row, nullValue());
+		assertThat(commentDefinition.width, is(1));
+		assertThat(commentDefinition.height, is(1));
+		assertThat(commentDefinition.visible, is(false));
+	}
+	
+	@Test
+	public void shouldCreateValidCommentDefinition() throws SQLException {
+		final StatementBasedReportSource reportSource = 
+				new StatementBasedReportSource(connection, 
+						"Select 's1' as sheetname, 1 as cell_column, 1 as cell_row, 'c1' as cell_name, 'ct' as cell_type, 'cv' as cell_value, " +
+						"       t_er_comment_definition('test', p_column => 23, p_row => 42, p_width => 3, p_height => 4, p_visible => 'true') as cell_comment " +
+						"from dual");
+		final List<CellDefinition> cellDefinitions = new ArrayList<CellDefinition>();
+		for(CellDefinition cellDefinition : reportSource)
+			cellDefinitions.add(cellDefinition);
+		assertThat(cellDefinitions.size(), is(1));
+		final CommentDefinition commentDefinition = cellDefinitions.get(0).comment; 
+		assertThat(commentDefinition, notNullValue());
+		assertThat(commentDefinition.author, is("HRE"));
+		assertThat(commentDefinition.column, is(23));
+		assertThat(commentDefinition.row, is(42));
+		assertThat(commentDefinition.width, is(3));
+		assertThat(commentDefinition.height, is(4));
+		assertThat(commentDefinition.visible, is(true));				
 	}
 }
