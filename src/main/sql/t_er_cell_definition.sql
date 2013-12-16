@@ -32,16 +32,10 @@ CREATE TYPE t_er_cell_definition AS OBJECT (
   cell_column       INTEGER,
   cell_row          INTEGER,
   cell_name         VARCHAR2(64),
-  cell_type         VARCHAR2(512),    -- string|number|date|datetime
-  cell_value        VARCHAR2(32767),  -- Textuelle Repräsentation des Wertes (number mit '.', date im Format DD.MM.YYYY, datetime im Format DD.MM.YYYY HH24:MI
-  cell_comment      VARCHAR2(32767),  -- Optionaler Kommentar fuer die Zelle
-  comment_author    VARCHAR2(32767),  -- Optionaler Autor des Kommentars
-  comment_column    INTEGER,          -- Spalte Kommentar (Default: Spalte Zelle + 1)
-  comment_row       INTEGER,          -- Zeile Kommentar (Default: Zeile Zelle)
-  comment_width     INTEGER,          -- Breite des Kommentars (default 1)
-  comment_height    INTEGER,          -- Hoehe des Kommentars (default 1)
-  comment_visible   VARCHAR2(8),      -- Flag, ob Kommentar sichtbar ist oder nicht (true, false), default false
-
+  cell_type         VARCHAR2(512),            -- string|number|date|datetime
+  cell_value        VARCHAR2(32767),          -- Textuelle Repräsentation des Wertes (number mit '.', date im Format DD.MM.YYYY, datetime im Format DD.MM.YYYY HH24:MI
+  cell_comment      t_er_comment_definition,  -- Optionaler Kommentar fuer die Zelle
+ 
   CONSTRUCTOR FUNCTION t_er_cell_definition(
     p_sheetname         VARCHAR2,
     p_cell_column       INTEGER,
@@ -87,8 +81,7 @@ CREATE OR REPLACE TYPE BODY t_er_cell_definition AS
     self.cell_type   := p_cell_type;
     self.cell_value  := p_cell_value;
     
-    self.cell_comment  := null;
-    self.comment_author:= user;
+    self.cell_comment  := null;    
     RETURN;
   END t_er_cell_definition;
   
@@ -108,8 +101,7 @@ CREATE OR REPLACE TYPE BODY t_er_cell_definition AS
     self.cell_type   := p_cell_type;
     self.cell_value  := p_cell_value;
     
-    self.cell_comment  := null;
-    self.comment_author:= user;
+    self.cell_comment  := null;    
     RETURN;
   END t_er_cell_definition;    
   
@@ -130,8 +122,7 @@ CREATE OR REPLACE TYPE BODY t_er_cell_definition AS
     self.cell_type   := p_cell_type;
     self.cell_value  := p_cell_value;
     
-    self.cell_comment  := p_comment;
-    self.comment_author:= user;    
+    self.cell_comment:= t_er_comment_definition(p_text => p_comment);       
     RETURN;
   END t_er_cell_definition;  
 END;

@@ -244,7 +244,7 @@ All examples above showing how to create and store reports as Excel files can be
 
 Evaluating a statement based report:
 
-	SELECT substr(cell_name,1,3) as name, substr(cell_value,1,16) as value, substr(cell_comment,1,32) as cell_comment
+	SELECT substr(cell_name,1,3) as name, substr(cell_value,1,16) as value, substr(src.cell_comment.comment_text,1,32) as cell_comment
 	FROM table(
 		pck_enerko_reports2.f_eval_report_from_statement(
 			'Select ''f_fb_report_source_test'' as sheetname, 0 as cell_column, 0 as cell_row, null as cell_name, ''string'' as cell_type, ''Hello, World'' as cell_value from dual',

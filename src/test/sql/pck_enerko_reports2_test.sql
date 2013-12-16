@@ -89,8 +89,8 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
         hlp := t_er_cell_definition(
             'datatypes', 1, r, null, 'string', 'beliebiger string wert', 'mit einem beliebigen Kommentar'
         );
-        hlp.comment_width := 3;
-        hlp.comment_height := 2;
+        hlp.cell_comment.comment_width := 3;
+        hlp.cell_comment.comment_height := 2;
         pipe row(hlp);
 		
         r:=r+1;
@@ -137,12 +137,12 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
         hlp := t_er_cell_definition(
             'datatypes', 1, r, 'formula', 'SUM(1,2,3,4,5,6,7,8,9,10)'
         );        
-        hlp.cell_comment := 'Formel: SUM(1,2,3,4,5,6,7,8,9,10)';
-        hlp.comment_column := 3;
-        hlp.comment_row := r-1;
-        hlp.comment_width := 4;
-        hlp.comment_height := 2;
-        hlp.comment_visible := 'true';
+        hlp.cell_comment := t_er_comment_definition(
+            'Formel: SUM(1,2,3,4,5,6,7,8,9,10)',
+            3, r-1,
+            4, 2,
+            'true'
+        );
         pipe row(hlp);
         
         r:=r+1;
