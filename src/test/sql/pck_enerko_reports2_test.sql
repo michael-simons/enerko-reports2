@@ -8,6 +8,8 @@ CREATE OR REPLACE PACKAGE pck_enerko_reports2_test AS
     PROCEDURE p_some_args (p_number IN NUMBER, p_date IN DATE, p_datetime IN TIMESTAMP, p_string IN  VARCHAR2);
 	
     FUNCTION f_fb_report_source_test(num_rows NUMBER, p_test_date IN DATE, p_test_string IN VARCHAR2) RETURN table_of_er_cell_definitions pipelined;
+    
+    FUNCTION f_fb_report_source_test2 RETURN table_of_er_cell_definitions pipelined;
 	
     FUNCTION f_noarg_report RETURN table_of_er_cell_definitions pipelined;
     
@@ -69,6 +71,19 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
         RETURN; 
     END f_fb_report_source_test;
 	
+    FUNCTION f_fb_report_source_test2 RETURN table_of_er_cell_definitions pipelined IS
+    BEGIN		    
+	    pipe row(t_er_cell_definition(
+            's1', 1, 1, null, 'string', 'beliebiger string wert', 'mit einem beliebigen Kommentar'
+        ));
+	    pipe row(t_er_cell_definition(
+            's1', 1, 2, null, 'string', 'beliebiger string wert', 
+            t_er_comment_definition(
+                'test', p_column => 23, p_row => 42, p_width => 3, p_height => 4, p_visible => 'true'
+            )
+        ));
+	END f_fb_report_source_test2;
+    
     FUNCTION f_all_features RETURN table_of_er_cell_definitions pipelined IS
         r INTEGER;
         hlp t_er_cell_definition;

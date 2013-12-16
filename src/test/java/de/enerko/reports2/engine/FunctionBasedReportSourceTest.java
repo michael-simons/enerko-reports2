@@ -26,7 +26,9 @@
  */
 package de.enerko.reports2.engine;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
@@ -36,8 +38,6 @@ import java.util.List;
 import org.junit.Test;
 
 import de.enerko.reports2.AbstractDatabaseTest;
-import de.enerko.reports2.engine.CellDefinition;
-import de.enerko.reports2.engine.FunctionBasedReportSource;
 
 /**
  * @author Michael J. Simons, 2013-06-18
@@ -53,5 +53,34 @@ public class FunctionBasedReportSourceTest extends AbstractDatabaseTest {
 		for(CellDefinition cellDefinition : reportSource)
 			cellDefinitions.add(cellDefinition);
 		assertThat(cellDefinitions.size(), is(5));
+	}
+	
+	@Test
+	public void shouldHandlePipelinedFunctionWithComments() throws SQLException {
+		final String methodName = "pck_enerko_reports2_test.f_fb_report_source_test2";
+		
+		final FunctionBasedReportSource reportSource = new FunctionBasedReportSource(connection,  methodName);
+		final List<CellDefinition> cellDefinitions = new ArrayList<CellDefinition>();
+		for(CellDefinition cellDefinition : reportSource)
+			cellDefinitions.add(cellDefinition);
+		assertThat(cellDefinitions.size(), is(2));
+		
+		CommentDefinition commentDefinition = cellDefinitions.get(0).comment; 
+		assertThat(commentDefinition, notNullValue());
+		assertThat(commentDefinition.author, is("HRE"));
+		assertThat(commentDefinition.column, nullValue());
+		assertThat(commentDefinition.row, nullValue());
+		assertThat(commentDefinition.width, is(1));
+		assertThat(commentDefinition.height, is(1));
+		assertThat(commentDefinition.visible, is(false));
+		
+		commentDefinition = cellDefinitions.get(1).comment; 
+		assertThat(commentDefinition, notNullValue());
+		assertThat(commentDefinition.author, is("HRE"));
+		assertThat(commentDefinition.column, is(23));
+		assertThat(commentDefinition.row, is(42));
+		assertThat(commentDefinition.width, is(3));
+		assertThat(commentDefinition.height, is(4));
+		assertThat(commentDefinition.visible, is(true));		
 	}
 }
