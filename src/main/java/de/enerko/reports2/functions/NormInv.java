@@ -62,7 +62,7 @@ public class NormInv implements FreeRefFunction {
 	}
 	
 	/**
-	 * Original C++ implementation found at http://www.wilmott.com/messageview.cfm?catid=10&threadid=38771
+	 * Original C++ implementation found at http://www.wilmott.com/messageview.cfm?catid=10&amp;threadid=38771
 	 * C# implementation found at http://weblogs.asp.net/esanchez/archive/2010/07/29/a-quick-and-dirty-implementation-of-excel-norminv-function-in-c.aspx
 	 *    Compute the quantile function for the normal distribution.
 	 *
