@@ -150,6 +150,10 @@ To delete a sheet, use a cell like the following:
 	
 	t_er_cell_definition('__DELETE_SHEET__', 0, 0, 'string', 'delete_me') -- The sheet with the name "delete_me" will be deleted
 	
+Sheets can also be cloned. Be aware that this doesn't work with sheets containing charts (a runtime exception will be thrown):
+
+	t_er_cell_definition('__CLONE_SHEET__"clone_me"_as_"cloned_sheet"', 0, 0, 'string', 'clone_me') -- The sheet with the name "clone_me" will be cloned as "cloned_sheet"
+	
 ### Create a report using pipelined functions
 
 #### Without templates
