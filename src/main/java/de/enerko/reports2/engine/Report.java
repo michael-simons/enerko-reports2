@@ -42,6 +42,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -76,7 +78,13 @@ public class Report {
 	 * If a cell has {@link CellDefinition#sheetname} set to this value, 
 	 * the sheet with the name {@link CellDefinition#value} will be deleted
 	 */
-	public final static String DELETE_SHEET_CELL = "__DELETE_SHEET__";
+	public final static String DELETE_SHEET_CELL = "__DELETE_SHEET__";	
+	/**
+	 * If a cell has  {@link CellDefinition#sheetname} set to this value
+	 * the sheet will be cloned. __CLONE_SHEET__"source"_as_"target"
+	 */
+	public final static Pattern CLONE_SHEET_CELL = Pattern.compile("__CLONE_SHEET__\"(\\w+[\\w- ]+\\w+)\"_as_\"(\\w+[\\w- ]+\\w+)\"");
+	
 	
 	public final static Map<String, SimpleDateFormat> DATE_FORMATS_SQL;
 	public final static Map<String, String> DATE_FORMATS_EXCEL;
@@ -134,11 +142,17 @@ public class Report {
 		// this doesn't compile inside Oracle Database VM. You need to import the compiled classes
 		// or use reportSource.iterator() directly
 		for(CellDefinition cellDefinition : reportSource) {
-			if(HIDE_SHEET_CELL.equals(cellDefinition.sheetname))
+			Matcher m = null;
+			if(HIDE_SHEET_CELL.equals(cellDefinition.sheetname)) {
 				sheetsToHide.add(cellDefinition.value);
-			else if(DELETE_SHEET_CELL.equals(cellDefinition.sheetname))
+			} else if(DELETE_SHEET_CELL.equals(cellDefinition.sheetname)) {
 				sheetsToDelete.add(cellDefinition.value);
-			else {			
+			} else if((m = CLONE_SHEET_CELL.matcher(cellDefinition.sheetname)).matches()) {
+				final String sourceName = m.group(1);
+				final String targetName = m.group(2);
+				final Sheet target = workbook.cloneSheet(workbook.getSheetIndex(sourceName));
+				workbook.setSheetName(workbook.getSheetIndex(target), targetName);
+			} else {			
 				// Create and cache the current sheet.			
 				if(previousSheetName == null || !previousSheetName.equals(cellDefinition.sheetname)) {
 					previousSheetName = cellDefinition.sheetname;
