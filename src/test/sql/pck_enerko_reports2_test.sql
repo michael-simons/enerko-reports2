@@ -233,7 +233,7 @@ CREATE OR REPLACE PACKAGE BODY pck_enerko_reports2_test AS
         ));  
         
         pipe row(t_er_cell_definition(
-            '__CLONE_SHEET__"clone_me"_as_"cloned_sheet"', 0, 0, 'string', 'delete_me'
+            '__CLONE_SHEET__"clone_me"_as_"cloned_sheet"', 0, 0, 'string', 'clone_me'
         ));
         
         pipe row(t_er_cell_definition(
