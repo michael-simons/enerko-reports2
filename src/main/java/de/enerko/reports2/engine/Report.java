@@ -185,9 +185,11 @@ public class Report {
 	
 	Report(final InputStream workbook, UDFFinder customFunctions) {
 		try {
-			this.workbook = new HSSFWorkbook(new BufferedInputStream(workbook));
+			this.workbook = WorkbookFactory.create(new BufferedInputStream(workbook));
 		} catch(IOException e) {
 			throw new RuntimeException("Could not load template for report!");
+		} catch(InvalidFormatException e) {
+			throw new RuntimeException("Could not load template for report, invalid format: " + e);
 		}
 		if(customFunctions != null)
 			this.workbook.addToolPack(customFunctions);
@@ -208,34 +210,35 @@ public class Report {
 		final List<CellDefinition> rv = new ArrayList<CellDefinition>();
 		
 		boolean reevaluate = false;
-		if(workbook instanceof HSSFWorkbook) {
-			try {
-				workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
-			} catch(Exception e) {
-				reevaluate = true;
-			}
-		}
 		
-		final FormulaEvaluator formulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook) workbook, IStabilityClassifier.TOTALLY_IMMUTABLE);
-		formulaEvaluator.clearAllCachedResultValues();
-						
-		for(int i=0; i<workbook.getNumberOfSheets(); ++i) {			
-			final Sheet sheet = workbook.getSheetAt(i);			
-			for(Row row : sheet) {				
-				for(Cell cell : row) {				
-					if(reevaluate && cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-						try {							
-							formulaEvaluator.evaluateFormulaCell(cell);
-						} catch(Exception e) {
-							ReportEngine.logger.log(Level.WARNING, String.format("Could not evaluate formula '%s' in cell %s on sheet '%s': %s", cell.getCellFormula(),  CellReferenceHelper.getCellReference(cell.getColumnIndex(), row.getRowNum()), sheet.getSheetName(), e.getMessage()));
-						}		
+		try {
+			workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
+		} catch(Exception e) {
+			reevaluate = true;
+		}
+				
+		if(reevaluate && workbook instanceof HSSFWorkbook) {
+			final FormulaEvaluator formulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook) workbook, IStabilityClassifier.TOTALLY_IMMUTABLE);
+			formulaEvaluator.clearAllCachedResultValues();
+							
+			for(int i=0; i<workbook.getNumberOfSheets(); ++i) {			
+				final Sheet sheet = workbook.getSheetAt(i);			
+				for(Row row : sheet) {				
+					for(Cell cell : row) {				
+						if(cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+							try {							
+								formulaEvaluator.evaluateFormulaCell(cell);
+							} catch(Exception e) {
+								ReportEngine.logger.log(Level.WARNING, String.format("Could not evaluate formula '%s' in cell %s on sheet '%s': %s", cell.getCellFormula(),  CellReferenceHelper.getCellReference(cell.getColumnIndex(), row.getRowNum()), sheet.getSheetName(), e.getMessage()));
+							}		
+						}
+											
+						final CellDefinition cellDefinition = IMPORTABLE_CELL_TYPES.containsKey(new Integer(cell.getCellType())) ? new CellDefinition(sheet.getSheetName(), cell) : null;
+						if(cellDefinition != null)
+							rv.add(cellDefinition);
 					}
-										
-					final CellDefinition cellDefinition = IMPORTABLE_CELL_TYPES.containsKey(new Integer(cell.getCellType())) ? new CellDefinition(sheet.getSheetName(), cell) : null;
-					if(cellDefinition != null)
-						rv.add(cellDefinition);
-				}
-			}			
+				}			
+			}
 		}
 		
 		return rv;
