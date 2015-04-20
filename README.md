@@ -57,17 +57,26 @@ I use [loadjava.bat][3] to load the java source files which is part of the Oracl
 First, load the required dependencies:
 
 	loadjava.bat -user hre/hre@database -resolve lib/commons-codec-1.9.jar
-	loadjava.bat -user hre/hre@database -resolve lib/poi-3.11.jar	
+	loadjava.bat -user hre/hre@database -resolve lib/stax-api-1.0.1.jar
+	loadjava.bat -user hre/hre@database -resolve lib/xmlbeans-2.6.0.jar
+	loadjava.bat -user hre/hre@database -resolve lib/poi-3.11.jar
+	loadjava.bat -user hre/hre@database -resolve lib/poi-ooxml-schemas-3.11.jar
 	loadjava.bat -user hre/hre@database -resolve lib/poi-ooxml-3.11.jar
 	
 then load ENERKOs Report Engine:
 
 	loadjava.bat -user hre/hre@database -resolve target/enerko-reports2-0.0.1-SNAPSHOT.jar
 	
-The same using dbms_java (Please note that the file must exists on path reachable by the database process)
+The same using dbms_java (Please note that the files must exists on path reachable by the database process)
 
 	set serveroutput on
 	CALL dbms_java.set_output(3000);
+	CALL dbms_java.loadjava('-resolve /var/tmp/enerko_reports/lib/commons-codec-1.9.jar');
+	CALL dbms_java.loadjava('-resolve /var/tmp/enerko_reports/lib/stax-api-1.0.1.jar');
+	CALL dbms_java.loadjava('-resolve /var/tmp/enerko_reports/lib/xmlbeans-2.6.0.jar');
+	CALL dbms_java.loadjava('-resolve /var/tmp/enerko_reports/lib/poi-3.11.jar');
+	CALL dbms_java.loadjava('-resolve /var/tmp/enerko_reports/lib/poi-ooxml-schemas-3.11.jar');
+	CALL dbms_java.loadjava('-resolve /var/tmp/enerko_reports/lib/poi-ooxml-3.11.jar');
 	CALL dbms_java.loadjava('-resolve /var/tmp/enerko_reports/enerko-reports2-0.0.2-SNAPSHOT.jar');
 
 Then you need some SQL packages:
@@ -76,6 +85,8 @@ Then you need some SQL packages:
     # A type that mimics a varg list
 	sqlplus hre/hre@database < src/main/sql/t_vargs.sql
 	
+	# A comment type
+	sqlplus hre/hre@database < src/main/sql/t_er_comment_definition.sql
 	# The type that represents a cell definition
 	sqlplus hre/hre@database < src/main/sql/t_er_cell_definition.sql 
 	# and the list thereof
