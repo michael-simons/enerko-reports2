@@ -169,7 +169,7 @@
 		<repository>
 			<id>enerko-srv2-central</id>
 			<name>enerko-srv2-central</name>
-			<url>http://enerko-srv2.enerko-informatik.de:8880/artifactory/enerko-srv2-central
+			<url>http://artifactory.enerko-informatik.de:8081/artifactory/enerko-srv2-central
 			</url>
 			<releases>
 				<enabled>true</enabled>
@@ -182,7 +182,7 @@
 			<id>enerko-srv2-snapshots</id>
 			<name>enerko-srv2-snapshots</name>
 			<url>
-				http://enerko-srv2.enerko-informatik.de:8880/artifactory/enerko-srv2-snapshots
+				http://artifactory.enerko-informatik.de:8081/artifactory/enerko-srv2-snapshots
 			</url>
 			<releases>
 				<enabled>false</enabled>
