@@ -56,8 +56,10 @@ I use [loadjava.bat][3] to load the java source files which is part of the Oracl
 
 First, load the required dependencies:
 
-	loadjava.bat -user hre/hre@database -resolve lib/commons-codec-1.5.jar
-	loadjava.bat -user hre/hre@database -resolve lib/poi-3.9.jar
+	loadjava.bat -user hre/hre@database -resolve lib/commons-codec-1.9.jar
+	loadjava.bat -user hre/hre@database -resolve lib/poi-3.11.jar
+	loadjava.bat -user hre/hre@database -resolve lib/poi-ooxml-schemas-3.11.jar
+	loadjava.bat -user hre/hre@database -resolve lib/poi-ooxml-3.11.jar
 	
 then load ENERKOs Report Engine:
 
