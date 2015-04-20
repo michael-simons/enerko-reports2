@@ -1,3 +1,5 @@
+**_This version does not work inside Oracle Database (the poi-ooxml-* artifacts doesn't seem to be resovable)_**
+
 # ENERKOs Report Engine
 
 ## Abstract
