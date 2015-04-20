@@ -61,6 +61,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * Implements a report on the basis of Apache HSSF.<br>
@@ -117,15 +119,19 @@ public class Report {
 	 * so formatted cell styles are cached
 	 */
 	private final Map<String, CellStyle> formatCache = new HashMap<String, CellStyle>();
+	/**
+	 * Cached for reevaluating workbooks 
+	 */
+	private final UDFFinder customFunctions; 
 	
 	Report(final ReportSource reportSource, UDFFinder customFunctions) {
 		this(reportSource, customFunctions, null);
 	}
 	
 	Report(final ReportSource reportSource, UDFFinder customFunctions, final InputStream template) {
-		if(template == null)
+		if(template == null) {
 			this.workbook = new HSSFWorkbook();
-		else
+		} else {
 			try {
 				this.workbook = WorkbookFactory.create(new BufferedInputStream(template));				
 			} catch(IOException e) {
@@ -133,9 +139,12 @@ public class Report {
 			} catch(InvalidFormatException e) {
 				throw new RuntimeException("Could not load template for report, invalid format: " + e);
 			}
+		}
 	
-		if(customFunctions != null)
-			this.workbook.addToolPack(customFunctions);
+		this.customFunctions = customFunctions;
+		if(this.customFunctions != null) {
+			this.workbook.addToolPack(this.customFunctions);
+		}
 		
 		final Set<String> sheetsToHide = new HashSet<String>();
 		final Set<String> sheetsToDelete = new HashSet<String>();
@@ -186,6 +195,7 @@ public class Report {
 	Report(final InputStream workbook, UDFFinder customFunctions) {
 		try {
 			this.workbook = WorkbookFactory.create(new BufferedInputStream(workbook));
+			this.customFunctions = customFunctions;
 		} catch(IOException e) {
 			throw new RuntimeException("Could not load template for report!");
 		} catch(InvalidFormatException e) {
@@ -217,8 +227,16 @@ public class Report {
 			reevaluate = true;
 		}
 				
-		if(reevaluate && workbook instanceof HSSFWorkbook) {
-			final FormulaEvaluator formulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook) workbook, IStabilityClassifier.TOTALLY_IMMUTABLE);
+		if(reevaluate) {
+			final FormulaEvaluator formulaEvaluator;
+					
+			if(workbook instanceof HSSFWorkbook) {
+				formulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook) workbook, IStabilityClassifier.TOTALLY_IMMUTABLE);
+			} else if (workbook instanceof XSSFWorkbook) {							
+				formulaEvaluator = XSSFFormulaEvaluator.create((XSSFWorkbook) workbook, IStabilityClassifier.TOTALLY_IMMUTABLE, this.customFunctions);
+			} else {
+				throw new RuntimeException("Invalid workbook: " + workbook.getClass().getName());
+			}
 			formulaEvaluator.clearAllCachedResultValues();
 							
 			for(int i=0; i<workbook.getNumberOfSheets(); ++i) {			
