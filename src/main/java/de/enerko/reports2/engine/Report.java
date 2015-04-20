@@ -47,6 +47,7 @@ import java.util.regex.Pattern;
 
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.formula.IStabilityClassifier;
 import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.Cell;
@@ -59,6 +60,7 @@ import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 /**
  * Implements a report on the basis of Apache HSSF.<br>
@@ -125,9 +127,11 @@ public class Report {
 			this.workbook = new HSSFWorkbook();
 		else
 			try {
-				this.workbook = new HSSFWorkbook(new BufferedInputStream(template));
+				this.workbook = WorkbookFactory.create(new BufferedInputStream(template));				
 			} catch(IOException e) {
 				throw new RuntimeException("Could not load template for report!");
+			} catch(InvalidFormatException e) {
+				throw new RuntimeException("Could not load template for report, invalid format: " + e);
 			}
 	
 		if(customFunctions != null)
