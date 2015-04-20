@@ -87,19 +87,6 @@ public class ReportEngineTest extends AbstractDatabaseTest {
 	}
 	
 	@Test
-	public void shouldHandleXlsxTemplates() throws IOException {
-		final ReportEngine reportEngine = new ReportEngine(connection);
-		
-		final InputStream template = this.getClass().getResource("/xlsx_template.xlsx").openStream();
-						
-		final Report report = reportEngine.createReportFromStatement("Select 'Blatt1' as sheetname, 1 as cell_column, 0 as cell_row, 'c1' as cell_name, 'number' as cell_type, '23' as cell_value from dual", template);
-		File outFile = File.createTempFile(ReportEngineTest.class.getSimpleName() + "-", ".xlsx");		
-		report.write(new BufferedOutputStream(new FileOutputStream(outFile)));
-		
-		ReportEngine.logger.log(Level.INFO, String.format("Report written to %s", outFile.getAbsolutePath()));		
-	}
-	
-	@Test
 	public void displayAllFeatures() throws IOException {
 		final ReportEngine reportEngine = new ReportEngine(connection);
 				

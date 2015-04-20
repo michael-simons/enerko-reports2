@@ -47,7 +47,6 @@ import java.util.regex.Pattern;
 
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.formula.IStabilityClassifier;
 import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.Cell;
@@ -60,9 +59,6 @@ import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * Implements a report on the basis of Apache HSSF.<br>
@@ -119,32 +115,23 @@ public class Report {
 	 * so formatted cell styles are cached
 	 */
 	private final Map<String, CellStyle> formatCache = new HashMap<String, CellStyle>();
-	/**
-	 * Cached for reevaluating workbooks 
-	 */
-	private final UDFFinder customFunctions; 
 	
 	Report(final ReportSource reportSource, UDFFinder customFunctions) {
 		this(reportSource, customFunctions, null);
 	}
 	
 	Report(final ReportSource reportSource, UDFFinder customFunctions, final InputStream template) {
-		if(template == null) {
+		if(template == null)
 			this.workbook = new HSSFWorkbook();
-		} else {
+		else
 			try {
-				this.workbook = WorkbookFactory.create(new BufferedInputStream(template));				
+				this.workbook = new HSSFWorkbook(new BufferedInputStream(template));
 			} catch(IOException e) {
 				throw new RuntimeException("Could not load template for report!");
-			} catch(InvalidFormatException e) {
-				throw new RuntimeException("Could not load template for report, invalid format: " + e);
 			}
-		}
 	
-		this.customFunctions = customFunctions;
-		if(this.customFunctions != null) {
-			this.workbook.addToolPack(this.customFunctions);
-		}
+		if(customFunctions != null)
+			this.workbook.addToolPack(customFunctions);
 		
 		final Set<String> sheetsToHide = new HashSet<String>();
 		final Set<String> sheetsToDelete = new HashSet<String>();
@@ -194,12 +181,9 @@ public class Report {
 	
 	Report(final InputStream workbook, UDFFinder customFunctions) {
 		try {
-			this.workbook = WorkbookFactory.create(new BufferedInputStream(workbook));
-			this.customFunctions = customFunctions;
+			this.workbook = new HSSFWorkbook(new BufferedInputStream(workbook));
 		} catch(IOException e) {
 			throw new RuntimeException("Could not load template for report!");
-		} catch(InvalidFormatException e) {
-			throw new RuntimeException("Could not load template for report, invalid format: " + e);
 		}
 		if(customFunctions != null)
 			this.workbook.addToolPack(customFunctions);
@@ -220,43 +204,34 @@ public class Report {
 		final List<CellDefinition> rv = new ArrayList<CellDefinition>();
 		
 		boolean reevaluate = false;
-		
-		try {
-			workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
-		} catch(Exception e) {
-			reevaluate = true;
+		if(workbook instanceof HSSFWorkbook) {
+			try {
+				workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
+			} catch(Exception e) {
+				reevaluate = true;
+			}
 		}
-				
-		if(reevaluate) {
-			final FormulaEvaluator formulaEvaluator;
-					
-			if(workbook instanceof HSSFWorkbook) {
-				formulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook) workbook, IStabilityClassifier.TOTALLY_IMMUTABLE);
-			} else if (workbook instanceof XSSFWorkbook) {							
-				formulaEvaluator = XSSFFormulaEvaluator.create((XSSFWorkbook) workbook, IStabilityClassifier.TOTALLY_IMMUTABLE, this.customFunctions);
-			} else {
-				throw new RuntimeException("Invalid workbook: " + workbook.getClass().getName());
-			}
-			formulaEvaluator.clearAllCachedResultValues();
-							
-			for(int i=0; i<workbook.getNumberOfSheets(); ++i) {			
-				final Sheet sheet = workbook.getSheetAt(i);			
-				for(Row row : sheet) {				
-					for(Cell cell : row) {				
-						if(cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-							try {							
-								formulaEvaluator.evaluateFormulaCell(cell);
-							} catch(Exception e) {
-								ReportEngine.logger.log(Level.WARNING, String.format("Could not evaluate formula '%s' in cell %s on sheet '%s': %s", cell.getCellFormula(),  CellReferenceHelper.getCellReference(cell.getColumnIndex(), row.getRowNum()), sheet.getSheetName(), e.getMessage()));
-							}		
-						}
-											
-						final CellDefinition cellDefinition = IMPORTABLE_CELL_TYPES.containsKey(new Integer(cell.getCellType())) ? new CellDefinition(sheet.getSheetName(), cell) : null;
-						if(cellDefinition != null)
-							rv.add(cellDefinition);
+		
+		final FormulaEvaluator formulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook) workbook, IStabilityClassifier.TOTALLY_IMMUTABLE);
+		formulaEvaluator.clearAllCachedResultValues();
+						
+		for(int i=0; i<workbook.getNumberOfSheets(); ++i) {			
+			final Sheet sheet = workbook.getSheetAt(i);			
+			for(Row row : sheet) {				
+				for(Cell cell : row) {				
+					if(reevaluate && cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+						try {							
+							formulaEvaluator.evaluateFormulaCell(cell);
+						} catch(Exception e) {
+							ReportEngine.logger.log(Level.WARNING, String.format("Could not evaluate formula '%s' in cell %s on sheet '%s': %s", cell.getCellFormula(),  CellReferenceHelper.getCellReference(cell.getColumnIndex(), row.getRowNum()), sheet.getSheetName(), e.getMessage()));
+						}		
 					}
-				}			
-			}
+										
+					final CellDefinition cellDefinition = IMPORTABLE_CELL_TYPES.containsKey(new Integer(cell.getCellType())) ? new CellDefinition(sheet.getSheetName(), cell) : null;
+					if(cellDefinition != null)
+						rv.add(cellDefinition);
+				}
+			}			
 		}
 		
 		return rv;
