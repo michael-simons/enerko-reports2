@@ -76,6 +76,7 @@ Then you need some SQL packages:
 	sqlplus hre/hre@database < src/main/sql/t_vargs.sql
 	
 	# The type that represents a cell definition
+	sqlplus hre/hre@database < src/main/sql/t_er_comment_definition.sql 
 	sqlplus hre/hre@database < src/main/sql/t_er_cell_definition.sql 
 	# and the list thereof
 	sqlplus hre/hre@database < src/main/sql/table_of_er_cell_definitions.sql 
